@@ -17,20 +17,14 @@ jobs:
     - name: Setup MSVC
       uses: microsoft/setup-msbuild@v2
     
-    - name: Install vcpkg
+    - name: Install system dependencies
       run: |
-        git clone https://github.com/Microsoft/vcpkg.git
-        .\vcpkg\bootstrap-vcpkg.bat
-        echo "VCPKG_ROOT=$env:GITHUB_WORKSPACE\vcpkg" >> $env:GITHUB_ENV
-    
-    - name: Install dependencies via vcpkg
-      run: |
-        .\vcpkg\vcpkg.exe install curl:x64-windows
-        echo "CMAKE_TOOLCHAIN_FILE=$env:GITHUB_WORKSPACE\vcpkg\scripts\buildsystems\vcpkg.cmake" >> $env:GITHUB_ENV
+        # Install curl using chocolatey (for CPR_USE_SYSTEM_CURL)
+        choco install curl --no-progress
     
     - name: Configure CMake
       run: |
-        cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$env:CMAKE_TOOLCHAIN_FILE -A x64
+        cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -A x64
     
     - name: Build
       run: |
@@ -73,7 +67,7 @@ jobs:
           2. Run from command line
           
           Built with:
-          - CMake
+          - CMake with FetchContent
           - MSVC
           - Dependencies: CPR, FMT, RE2, Abseil, cxxopts, pugixml, nlohmann/json
       env:
@@ -86,9 +80,7 @@ jobs:
       matrix:
         os: [windows-latest]
         build_type: [Release, Debug]
-        arch: [x64, Win32]
-        exclude:
-          - arch: Win32  # Exclude if you only want x64
+        arch: [x64]
     
     runs-on: ${{ matrix.os }}
     
@@ -99,21 +91,14 @@ jobs:
     - name: Setup MSVC
       uses: microsoft/setup-msbuild@v2
     
-    - name: Install vcpkg
+    - name: Install system dependencies
       run: |
-        git clone https://github.com/Microsoft/vcpkg.git
-        .\vcpkg\bootstrap-vcpkg.bat
-        echo "VCPKG_ROOT=$env:GITHUB_WORKSPACE\vcpkg" >> $env:GITHUB_ENV
-    
-    - name: Install dependencies via vcpkg
-      run: |
-        $vcpkg_triplet = if ("${{ matrix.arch }}" -eq "x64") { "x64-windows" } else { "x86-windows" }
-        .\vcpkg\vcpkg.exe install curl:$vcpkg_triplet
-        echo "CMAKE_TOOLCHAIN_FILE=$env:GITHUB_WORKSPACE\vcpkg\scripts\buildsystems\vcpkg.cmake" >> $env:GITHUB_ENV
+        # Install curl using chocolatey (for CPR_USE_SYSTEM_CURL)
+        choco install curl --no-progress
     
     - name: Configure CMake
       run: |
-        cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_TOOLCHAIN_FILE=$env:CMAKE_TOOLCHAIN_FILE -A ${{ matrix.arch }}
+        cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -A ${{ matrix.arch }}
     
     - name: Build
       run: |
