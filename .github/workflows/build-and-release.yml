@@ -3,7 +3,6 @@ name: Build and Release
 permissions:
   contents: write
   actions: read
-  metadata: read
 
 on:
   push:
