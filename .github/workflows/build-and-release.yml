@@ -17,14 +17,9 @@ jobs:
     - name: Setup MSVC
       uses: microsoft/setup-msbuild@v2
     
-    - name: Install system dependencies
-      run: |
-        # Install curl using chocolatey (for CPR_USE_SYSTEM_CURL)
-        choco install curl --no-progress
-    
     - name: Configure CMake
       run: |
-        cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -A x64
+        cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -A x64 -DCPR_USE_SYSTEM_CURL=OFF
     
     - name: Build
       run: |
@@ -91,14 +86,9 @@ jobs:
     - name: Setup MSVC
       uses: microsoft/setup-msbuild@v2
     
-    - name: Install system dependencies
-      run: |
-        # Install curl using chocolatey (for CPR_USE_SYSTEM_CURL)
-        choco install curl --no-progress
-    
     - name: Configure CMake
       run: |
-        cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -A ${{ matrix.arch }}
+        cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -A ${{ matrix.arch }} -DCPR_USE_SYSTEM_CURL=OFF
     
     - name: Build
       run: |
