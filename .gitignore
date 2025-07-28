@@ -4,6 +4,8 @@
 # CMake files
 build/*
 todo.md
+links.txt
+failed.txt
 # Compiled Object files
 *.slo
 *.lo
