@@ -188,6 +188,31 @@ namespace AnimepaheCLI
         return links;
     }
 
+    int Animepahe::get_series_episode_count(const std::string& link)
+    {
+        std::string id;
+        RE2::PartialMatch(link, R"(anime/([a-f0-9-]{36}))", &id);
+
+        cpr::Response response = cpr::Get(
+            cpr::Url{
+                fmt::format("https://animepahe.ru/api?m=release&id={}&sort=episode_asc&page={}", id, 1)},
+            cpr::Header{getHeaders(link)}, cookies);
+
+        if (response.status_code != 200)
+        {
+            throw std::runtime_error(fmt::format("\n * Error: Failed to fetch {}, StatusCode {}\n", link, response.status_code));
+        }
+
+        auto parsed = json::parse(response.text);
+        int epCount = 0;
+        if (parsed.contains("total") && parsed["total"].is_number_integer())
+        {
+            epCount = parsed["total"];
+        }
+
+        return epCount;
+    }
+
     std::vector<std::map<std::string, std::string>> Animepahe::extract_link_content(
         const std::string &link,
         const std::vector<int> &episodes,
