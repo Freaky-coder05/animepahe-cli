@@ -5,7 +5,7 @@
 build/*
 todo.md
 links.txt
-failed.txt
+failed.txttodo.md
 # Compiled Object files
 *.slo
 *.lo
