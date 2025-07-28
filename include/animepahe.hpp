@@ -15,6 +15,7 @@ namespace AnimepaheCLI
     private:
         cpr::Header getHeaders(const std::string &link);
         std::map<std::string, std::string> fetch_episode(const std::string &link);
+        int get_series_episode_count(const std::string& link);
         std::vector<std::string> fetch_series(const std::string &link);
         void extract_link_metadata(const std::string &link, bool isSeries);
         std::vector<std::map<std::string, std::string>> extract_link_content(
