@@ -80,6 +80,13 @@ int main(int argc, char *argv[])
         fmt::print(" {} \n\n", e.what());
         return 1;
     }
+    catch (const std::exception &e)
+    {
+        fmt::print("\n\n * ");
+        fmt::print(fmt::fg(fmt::color::indian_red), "ERROR :");
+        fmt::print(" {} \n\n", e.what());
+        return 1;
+    }
 
     return 0;
 }
