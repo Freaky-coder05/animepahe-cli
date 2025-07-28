@@ -224,6 +224,12 @@ namespace AnimepaheCLI
 
         if (isSeries)
         {
+            const int epCount = get_series_episode_count(link);
+            if (episodes[0] > epCount || episodes[1] > epCount)
+            {
+                throw std::runtime_error(fmt::format("Invalid episode range: {}-{} for series with {} episodes", episodes[0], episodes[1], epCount));
+            }
+            
             std::vector<std::string> seriesEpLinks = fetch_series(link);
             if (isAllEpisodes)
             {
@@ -244,10 +250,6 @@ namespace AnimepaheCLI
                 for (int i = 0; i < seriesEpLinks.size(); ++i)
                 {
                     const std::string &pLink = seriesEpLinks[i];
-                    if (episodes[0] > seriesEpLinks.size() || episodes[1] > seriesEpLinks.size())
-                    {
-                        throw std::runtime_error(fmt::format("Invalid episode range: {}-{} for series with {} episodes", episodes[0], episodes[1], seriesEpLinks.size()));
-                    }
 
                     if ((i >= episodes[0] - 1 && i <= episodes[1] - 1))
                     {
