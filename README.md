@@ -10,6 +10,7 @@ A command-line interface for downloading anime episodes from AnimePahe.ru with s
 
 This is a **beta version** and may encounter issues during operation. The current version has the following limitations:
 - Some episodes may fail, but retrying that episode always work.
+- No support for selected quality, it will always select max available quality in JPN audio.
 - Download via cli tool is not yet implementd, but direct links can be saved to links.txt
 - Zip feature is not yet available
 - Some edge cases may cause unexpected behavior
