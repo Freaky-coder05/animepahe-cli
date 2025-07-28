@@ -3,7 +3,7 @@
 
 # CMake files
 build/*
-
+todo.md
 # Compiled Object files
 *.slo
 *.lo
