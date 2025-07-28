@@ -155,17 +155,68 @@ namespace AnimepaheCLI
         return *maxEpResMap;
     }
 
-    std::vector<std::string> Animepahe::fetch_series(const std::string &link)
+    std::vector<std::string> Animepahe::fetch_series(
+        const std::string &link,
+        const int epCount,
+        bool isAllEpisodes,
+        const std::vector<int>& episodes
+    )
     {
         std::vector<std::string> links;
-        int page = 1; /* default is first page, but paging functionality need to be implement */
-        /* extract session from url */
+        std::vector<int> paginationPages;
+
+        if (isAllEpisodes)
+        {
+            paginationPages = getPaginationRange(1, epCount);
+        }
+        else
+        {
+            paginationPages = getPaginationRange(episodes[0], episodes[1]);
+        }
+
+        std::string id;
+        RE2::PartialMatch(link, R"(anime/([a-f0-9-]{36}))", &id);
+        fmt::print("\n\r * Requesting Pages..");
+        for (auto &page : paginationPages)
+        {
+            fmt::print("\r * Requesting Pages : {}", page);
+            fflush(stdout);
+            cpr::Response response = cpr::Get(
+                cpr::Url{
+                    fmt::format("https://animepahe.ru/api?m=release&id={}&sort=episode_asc&page={}", id, page)},
+                cpr::Header{getHeaders(link)}, cookies);
+
+            if (response.status_code != 200)
+            {
+                throw std::runtime_error(fmt::format("\n * Error: Failed to fetch {}, StatusCode {}\n", link, response.status_code));
+            }
+
+            auto parsed = json::parse(response.text);
+
+            if (parsed.contains("data") && parsed["data"].is_array())
+            {
+                for (const auto &episode : parsed["data"])
+                {
+                    std::string session = episode.value("session", "unknown");
+                    std::string episodeLink = fmt::format("https://animepahe.ru/play/{}/{}", id, session);
+                    links.push_back(episodeLink);
+                }
+            }
+        }
+        fmt::print("\r * Requesting Pages :");
+        fmt::print(fmt::fg(fmt::color::lime_green), " OK!\n\r");
+
+        return links;
+    }
+
+    int Animepahe::get_series_episode_count(const std::string& link)
+    {
         std::string id;
         RE2::PartialMatch(link, R"(anime/([a-f0-9-]{36}))", &id);
 
         cpr::Response response = cpr::Get(
             cpr::Url{
-                fmt::format("https://animepahe.ru/api?m=release&id={}&sort=episode_asc&page={}", id, page)},
+                fmt::format("https://animepahe.ru/api?m=release&id={}&sort=episode_asc&page={}", id, 1)},
             cpr::Header{getHeaders(link)}, cookies);
 
         if (response.status_code != 200)
@@ -174,18 +225,13 @@ namespace AnimepaheCLI
         }
 
         auto parsed = json::parse(response.text);
-
-        if (parsed.contains("data") && parsed["data"].is_array())
+        int epCount = 0;
+        if (parsed.contains("total") && parsed["total"].is_number_integer())
         {
-            for (const auto &episode : parsed["data"])
-            {
-                std::string session = episode.value("session", "unknown");
-                std::string episodeLink = fmt::format("https://animepahe.ru/play/{}/{}", id, session);
-                links.push_back(episodeLink);
-            }
+            epCount = parsed["total"];
         }
 
-        return links;
+        return epCount;
     }
 
     std::vector<std::map<std::string, std::string>> Animepahe::extract_link_content(
@@ -195,11 +241,12 @@ namespace AnimepaheCLI
         bool isAllEpisodes)
     {
         std::vector<std::map<std::string, std::string>> episodeListData;
-        fmt::print("\n\r * Requesting Episodes.. ");
 
         if (isSeries)
         {
-            std::vector<std::string> seriesEpLinks = fetch_series(link);
+            const int epCount = get_series_episode_count(link);
+            std::vector<std::string> seriesEpLinks = fetch_series(link, epCount, isAllEpisodes, episodes);
+            
             if (isAllEpisodes)
             {
                 for (int i = 0; i < seriesEpLinks.size(); ++i)
@@ -216,13 +263,13 @@ namespace AnimepaheCLI
             }
             else
             {
+                if (episodes[0] > epCount || episodes[1] > epCount)
+                {
+                    throw std::runtime_error(fmt::format("Invalid episode range: {}-{} for series with {} episodes", episodes[0], episodes[1], epCount));
+                }
                 for (int i = 0; i < seriesEpLinks.size(); ++i)
                 {
                     const std::string &pLink = seriesEpLinks[i];
-                    if (episodes[0] > seriesEpLinks.size() || episodes[1] > seriesEpLinks.size())
-                    {
-                        throw std::runtime_error(fmt::format("Invalid episode range: {}-{} for series with {} episodes", episodes[0], episodes[1], seriesEpLinks.size()));
-                    }
 
                     if ((i >= episodes[0] - 1 && i <= episodes[1] - 1))
                     {
@@ -286,18 +333,26 @@ namespace AnimepaheCLI
         /* Extract Kwik from pahe.win */
         KwikPahe kwikpahe;
         std::vector<std::string> directLinks;
-
+        int logEpNum = isAllEpisodes ? 1 : episodes[0];
         for (int i = 0; i < epData.size(); ++i)
         {
             fmt::print("\n\r * Processing :");
-            fmt::print(fmt::fg(fmt::color::cyan), fmt::format(" EP{}", padIntWithZero(i + 1)));
+            fmt::print(fmt::fg(fmt::color::cyan), fmt::format(" EP{}", padIntWithZero(logEpNum)));
             std::string link = kwikpahe.extract_kwik_link(epData[i].at("dPaheLink"));
-            directLinks.push_back(link);
             for (int i = 0; i < 3; ++i) {
                 fmt::print("{}{}{}", MOVE_UP, CLEAR_LINE, CURSOR_START);
             }
-            fmt::print("\r * Processing : EP{}", padIntWithZero(i + 1));
-            fmt::print(fmt::fg(fmt::color::lime_green), " OK!");
+            fmt::print("\r * Processing : EP{}", padIntWithZero(logEpNum));
+            if (link.empty())
+            {
+                fmt::print(fmt::fg(fmt::color::indian_red), " FAIL!");
+            }
+            else
+            {
+                directLinks.push_back(link);
+                fmt::print(fmt::fg(fmt::color::lime_green), " OK!");
+            }
+            logEpNum++;
         }
 
         if (exportLinks)
@@ -311,7 +366,7 @@ namespace AnimepaheCLI
                 }
                 exportfile.close();
             }
-            fmt::print("\n\n * Exported : links.txt\n");
+            fmt::print("\n\n * Exported : links.txt\n\n");
         }
         else
         {

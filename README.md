@@ -9,8 +9,9 @@ A command-line interface for downloading anime episodes from AnimePahe.ru with s
 ## ⚠️ Beta Notice
 
 This is a **beta version** and may encounter issues during operation. The current version has the following limitations:
-- Maximum of 30 episodes per download session
-- Episode ranges are limited to 30-episode spans (e.g., 1-30 is supported, but 20-50 is not)
+- Some episodes may fail, but retrying that episode always work.
+- Download via cli tool is not yet implementd, but direct links can be saved to links.txt
+- Zip feature is not yet available
 - Some edge cases may cause unexpected behavior
 
 ## 📋 Features

@@ -4,10 +4,30 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <algorithm>
 #include <string_view>
 
 namespace AnimepaheCLI
 {
+    int getPage(int number)
+    {
+        return std::max(1, (number + 29) / 30);
+    }
+
+    std::vector<int> getPaginationRange(int start, int end)
+    {
+        int start_page = getPage(start);
+        int end_page = getPage(end);
+        std::vector<int> pages;
+
+        for (int i = start_page; i <= end_page; ++i)
+        {
+            pages.push_back(i);
+        }
+
+        return pages;
+    }
+
     std::string sanitize_utf8(const std::string &input)
     {
         std::string output;

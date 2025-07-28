@@ -10,6 +10,8 @@
 
 namespace AnimepaheCLI
 {
+    int getPage(int number);
+    std::vector<int> getPaginationRange(int start, int end);
     std::string sanitize_utf8(const std::string &input);
     bool isFullSeriesURL(const std::string &url);
     bool isEpisodeURL(const std::string &url);

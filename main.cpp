@@ -1,7 +1,7 @@
 #include <cxxopts.hpp>
 #include <fmt/core.h>
+#include <fmt/color.h>
 #include <string>
-#include <iostream>
 #include <utils.hpp>
 #include <animepahe.hpp>
 
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
             throw std::runtime_error("Invalid episode range format. Use 'all' or '1-15'.");
         }
 
-        fmt::print("\n * Animepahe-CLI (v0.1.0-beta) https://github.com/Danushka-Madushan/animepahe-cli \n");
+        fmt::print("\n * Animepahe-CLI (v0.1.1-beta) https://github.com/Danushka-Madushan/animepahe-cli \n");
 
         // Create an instance of Animepahe and call the extractor method
         Animepahe animepahe;
@@ -75,7 +75,16 @@ int main(int argc, char *argv[])
     }
     catch (const std::runtime_error &e)
     {
-        std::cout << e.what() << std::endl << std::endl;
+        fmt::print("\n\n * ");
+        fmt::print(fmt::fg(fmt::color::indian_red), "ERROR :");
+        fmt::print(" {} \n\n", e.what());
+        return 1;
+    }
+    catch (const std::exception &e)
+    {
+        fmt::print("\n\n * ");
+        fmt::print(fmt::fg(fmt::color::indian_red), "ERROR :");
+        fmt::print(" {} \n\n", e.what());
         return 1;
     }
 
