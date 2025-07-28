@@ -98,7 +98,7 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 
 ## 🐛 Known Issues
 
-- Episode ranges spanning more than 30 episodes are not supported
+- Resolution cannot be selected. max resolution by default.
 - Some anime series may have parsing issues
 - Network timeouts may occur with slow connections
 - Large batch downloads may consume significant system resources
