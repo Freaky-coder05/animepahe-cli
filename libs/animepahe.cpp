@@ -13,6 +13,12 @@ using json = nlohmann::json;
 namespace AnimepaheCLI
 {
     cpr::Cookies cookies = cpr::Cookies{{"__ddg2_", ""}};
+    const char* CLEAR_LINE = "\033[2K";   // Clear entire line
+    const char* MOVE_UP = "\033[1A";      // Move cursor up 1 line
+    const char* CURSOR_START = "\r";      // Return to start of line
+    
+    /* Extract Kwik from pahe.win */
+    KwikPahe kwikpahe;
 
     cpr::Header Animepahe::getHeaders(const std::string &link)
     {
