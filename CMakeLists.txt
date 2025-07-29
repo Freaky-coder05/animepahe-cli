@@ -12,16 +12,16 @@ include(FetchContent)
 
 # Fetch Abseil first (required by RE2)
 FetchContent_Declare(
-    absl
-    GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
-    GIT_TAG        20240116.2  # Use a stable release tag
+  absl
+  GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
+  GIT_TAG        20240116.2  # Use a stable release tag
 )
 
 # Fetch RE2
 FetchContent_Declare(
-    re2
-    GIT_REPOSITORY https://github.com/google/re2.git
-    GIT_TAG        2024-04-01  # Use a stable release tag
+	re2
+  GIT_REPOSITORY https://github.com/google/re2.git
+	GIT_TAG        2024-04-01  # Use a stable release tag
 )
 
 # FMT
@@ -71,7 +71,7 @@ add_executable(
 
 target_include_directories(animepahe-cli-beta
   PRIVATE
-    ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/include
 )
 
 target_link_libraries(animepahe-cli-beta
@@ -79,7 +79,7 @@ target_link_libraries(animepahe-cli-beta
   pugixml
   cpr::cpr
   fmt::fmt
-    re2::re2
-    cxxopts::cxxopts
-    nlohmann_json::nlohmann_json
+  re2::re2
+  cxxopts::cxxopts
+  nlohmann_json::nlohmann_json
 )
