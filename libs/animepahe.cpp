@@ -326,12 +326,6 @@ namespace AnimepaheCLI
             fmt::print(" * Episodes Range: {}\n", isAllEpisodes ? "All" : vectorToString(episodes));
         }
         
-        const char* CLEAR_LINE = "\033[2K";   // Clear entire line
-        const char* MOVE_UP = "\033[1A";      // Move cursor up 1 line
-        const char* CURSOR_START = "\r";      // Return to start of line
-
-        /* Extract Kwik from pahe.win */
-        KwikPahe kwikpahe;
         std::vector<std::string> directLinks;
         int logEpNum = isAllEpisodes ? 1 : episodes[0];
         for (int i = 0; i < epData.size(); ++i)
