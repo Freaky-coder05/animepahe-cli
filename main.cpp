@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
             throw std::runtime_error("Invalid episode range format. Use 'all' or '1-15'.");
         }
 
-        fmt::print("\n * Animepahe-CLI (v0.1.1-beta) https://github.com/Danushka-Madushan/animepahe-cli \n");
+        fmt::print("\n * Animepahe-CLI (v0.1.2-beta) https://github.com/Danushka-Madushan/animepahe-cli \n");
 
         // Create an instance of Animepahe and call the extractor method
         Animepahe animepahe;
