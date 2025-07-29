@@ -15,7 +15,9 @@ int main(int argc, char *argv[])
      * -e, --episodes
      * all,1,1-15 all means full series, or episode range
      * -x, --export
-     * saves all download links to a text file\
+     * saves all download links to a text file
+     * -q, --quality
+     * set target quality, if available it will select otherwise fall back to maximum
      * -z, --zip
      * creates a zip from downloaded items */
 
@@ -23,6 +25,7 @@ int main(int argc, char *argv[])
     options.add_options()
     ("l,link", "Input anime series link or a single episode link", cxxopts::value<std::string>())
     ("e,episodes", "Specify episodes to download (all, 1-15)", cxxopts::value<std::string>())
+    ("q,quality", "Set target quality", cxxopts::value<int>()->default_value("0"))
     ("x,export", "Export download links to a text file", cxxopts::value<bool>()->default_value("false"))
     ("z,zip", "Create a zip from downloaded items", cxxopts::value<bool>()->default_value("false"))
     ("h,help", "Print usage");
@@ -38,6 +41,7 @@ int main(int argc, char *argv[])
 
         std::string link = result["link"].as<std::string>();
         std::string episodes = result["episodes"].as<std::string>();
+        int targetRes = result["quality"].as<int>();
         bool exportLinks = result["export"].as<bool>();
         bool createZip = result["zip"].as<bool>();
 
@@ -50,13 +54,14 @@ int main(int argc, char *argv[])
             throw std::runtime_error("Invalid episode range format. Use 'all' or '1-15'.");
         }
 
-        fmt::print("\n * Animepahe-CLI (v0.1.2-beta) https://github.com/Danushka-Madushan/animepahe-cli \n");
+        fmt::print("\n * Animepahe-CLI (v0.1.3-beta) https://github.com/Danushka-Madushan/animepahe-cli \n");
 
         // Create an instance of Animepahe and call the extractor method
         Animepahe animepahe;
         animepahe.extractor(
             isFullSeriesURL(link),
             link,
+            targetRes,
             episodes == "all",
             episodes == "all" ? std::vector<int>() : parseEpisodeRange(episodes),
             exportLinks,
@@ -70,7 +75,7 @@ int main(int argc, char *argv[])
     }
     catch (const cxxopts::exceptions::missing_argument)
     {
-        fmt::print("\n Usage: -l,--link \"https://animepahe.ru/anime/....\" -e,--episodes [all,1-12] -x,--export -z,--zip\n\n");
+        fmt::print("\n Usage: -l,--link \"https://animepahe.ru/anime/....\" -e,--episodes [all,1-12] -q,--quality 720 -x,--export -z,--zip\n\n");
         return 1;
     }
     catch (const std::runtime_error &e)
