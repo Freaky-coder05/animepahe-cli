@@ -4,18 +4,18 @@
 [![Release](https://img.shields.io/github/v/release/Danushka-Madushan/animepahe-cli?include_prereleases)](https://github.com/Danushka-Madushan/animepahe-cli/releases)
 [![License](https://img.shields.io/github/license/Danushka-Madushan/animepahe-cli)](LICENSE)
 
-A command-line interface for downloading anime episodes from AnimePahe.ru with support for batch downloads, episode ranges, and export functionality.
+A command-line interface for downloading anime episodes from AnimePahe.ru with support for batch downloads, episode ranges, quality selection, and export functionality.
 
 ## ⚠️ Beta Notice
 
 This is a **beta version** and may encounter issues during operation. The current version has the following limitations:
-- No support for selected quality, it will always select max available quality in JPN audio.
 - Download via cli tool is not yet implementd, but direct links can be saved to links.txt
 - Zip feature is not yet available
 - Some edge cases may cause unexpected behavior
 
 ## 📋 Features
 
+- **Quality Selection**: Choose specific video quality (720p, 1080p, etc.) with automatic fallback to maximum available quality
 - **Batch Downloads**: Download multiple episodes or entire series
 - **Episode Range Selection**: Choose specific episode ranges for targeted downloads
 - **Export Functionality**: Generate download links without downloading
@@ -54,10 +54,11 @@ animepahe-cli-beta.exe [OPTIONS]
 | `-e` | `--episodes` | Episode selection (`all` or range like `1-12`) | `all`, `1-12`, `5-25` |
 
 ### Optional Arguments
-| Flag | Long Form | Description |
-|------|-----------|-------------|
-| `-x` | `--export` | Export download links to `links.txt` (cancels download) |
-| `-z` | `--zip` | Compress all downloaded episodes into a single ZIP archive |
+| Flag | Long Form | Description | Example |
+|------|-----------|-------------|---------|
+| `-q` | `--quality` | Target video quality (without 'p' suffix) | `720`, `1080`, `360` |
+| `-x` | `--export` | Export download links to `links.txt` (cancels download) | |
+| `-z` | `--zip` | Compress all downloaded episodes into a single ZIP archive | |
 
 ### Examples
 
@@ -71,6 +72,16 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-12
 ```
 
+#### Download with Specific Quality
+```bash
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e all -q 720
+```
+
+#### Download with Quality Selection (Alternative Syntax)
+```bash
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-12 --quality 360
+```
+
 #### Export Download Links Only
 ```bash
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e all -x
@@ -81,7 +92,18 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-24 -z
 ```
 
+#### Download with Quality and ZIP Archive
+```bash
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-24 -q 1080 -z
+```
+
 ## 🔧 Technical Details
+
+### Quality Selection
+- Specify target quality without the 'p' suffix (e.g., `720`, `1080`, `360`)
+- If the specified quality is available, it will be selected
+- If not available, the tool automatically falls back to the maximum available quality
+- All downloads maintain Japanese audio by default
 
 ### Dependencies
 - **CPR**: HTTP client library for C++
@@ -99,7 +121,6 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 
 ## 🐛 Known Issues
 
-- Resolution cannot be selected. max resolution by default.
 - Network timeouts may occur with slow connections
 - Large batch downloads may consume significant system resources
 
