@@ -273,9 +273,13 @@ namespace AnimepaheCLI
                 {
                     throw std::runtime_error(fmt::format("Invalid episode range: {}-{} for series with {} episodes", episodes[0], episodes[1], epCount));
                 }
-                for (int i = 0; i < seriesEpLinks.size(); ++i)
+
+                std::vector<int> paginationPages = getPaginationRange(episodes[0], episodes[1]);
+                int offset = paginationPages[0] == 1 ? 0 : (30 * (paginationPages[0]-1));
+                
+                for (int i = offset; i < (seriesEpLinks.size() + offset); ++i)
                 {
-                    const std::string &pLink = seriesEpLinks[i];
+                    const std::string &pLink = seriesEpLinks[i-offset];
 
                     if ((i >= episodes[0] - 1 && i <= episodes[1] - 1))
                     {
