@@ -70,7 +70,7 @@ namespace AnimepaheCLI
                 type = unescape_html_entities(type);
             }
 
-            if (RE2::FindAndConsume(&TYPE_CONSUME, R"re(Episode[^>]*>\s+(\d*)</p)re", &episodesCount))
+            if (RE2::FindAndConsume(&TYPE_CONSUME, R"re(Episode[^>]*>\s*(\S*)</p)re", &episodesCount))
             {
                 episodesCount = unescape_html_entities(episodesCount);
             }
