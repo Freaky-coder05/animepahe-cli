@@ -140,35 +140,60 @@ namespace AnimepaheCLI
             throw std::runtime_error(fmt::format("Failed to Get Kwik from {}, StatusCode: {}", kwikLink, response.status_code));
         }
 
-        RE2::GlobalReplace(&response.text, R"((\r\n|\r|\n))", "");
-        re2::StringPiece ENCODE_CONSUME = response.text;
-        re2::StringPiece SESSION_CONSUME = response.raw_header;
-
+        // Clean the response text
+        std::string cleanText = response.text;
+        RE2::GlobalReplace(&cleanText, R"((\r\n|\r|\n))", "");
+        
+        // Extract session from headers
         std::string kwik_session;
+        re2::StringPiece input(response.raw_header);
+        RE2::FindAndConsume(&input, R"re(kwik_session=([^;]*);)re", &kwik_session);
+
         std::string link, token;
         std::string directLink;
 
-        RE2::FindAndConsume(
-            &ENCODE_CONSUME,
+        // Try to extract encoded parameters - use separate StringPiece for each attempt
+        re2::StringPiece encode_text(cleanText);
+        std::string temp_encoded, temp_alphabet, temp_offset_str, temp_base_str;
+        
+        bool found_encoded = RE2::FindAndConsume(
+            &encode_text,
             R"re(\(\s*"([^",]*)"\s*,\s*\d+\s*,\s*"([^",]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*\d+[a-zA-Z]?\s*\))re",
-            &encodedString, &alphabetKey, &offset, &base
+            &temp_encoded, &temp_alphabet, &temp_offset_str, &temp_base_str
         );
 
-        re2::StringPiece decoded = decodeJSStyle(encodedString, zp, alphabetKey, offset, base, placeholder);
-        // Step 1: extract the outer tag content
-        RE2::FindAndConsume(&decoded, R"re("(https?://kwik\.[^/\s"]+/[^/\s"]+/[^"\s]*)")re", &link);
-        // Step 2: look for the token separately
-        RE2::FindAndConsume(&decoded, R"re(name="_token"[^"]*"(\S*)">)re", &token);
-        /* kwik session */
-        RE2::FindAndConsume(&SESSION_CONSUME, R"re(kwik_session=([^;]*);)re", &kwik_session);
-
-        if (token.empty() || link.empty())
+        if (!found_encoded || temp_encoded.empty() || temp_alphabet.empty())
         {
             return fetch_kwik_dlink(kwikLink, retries - 1);
         }
-        else
+
+        // Update global variables only if extraction succeeded
+        encodedString = temp_encoded;
+        alphabetKey = temp_alphabet;  
+        offset = std::stoi(temp_offset_str);
+        base = std::stoi(temp_base_str);
+
+        try 
         {
+            std::string decodedString = decodeJSStyle(encodedString, zp, alphabetKey, offset, base, placeholder);
+            
+            // Use fresh StringPiece objects for each search
+            re2::StringPiece link_search(decodedString);
+            re2::StringPiece token_search(decodedString);
+            
+            bool found_link = RE2::FindAndConsume(&link_search, R"re("(https?://kwik\.[^/\s"]+/[^/\s"]+/[^"\s]*)")re", &link);
+            bool found_token = RE2::FindAndConsume(&token_search, R"re(name="_token"[^"]*"(\S*)">)re", &token);
+
+            if (!found_link || !found_token || link.empty() || token.empty())
+            {
+                return fetch_kwik_dlink(kwikLink, retries - 1);
+            }
+
             directLink = fetch_kwik_direct(link, token, kwik_session);
+        }
+        catch (const std::exception& e)
+        {
+            return fetch_kwik_dlink(kwikLink, retries - 1);
         }
 
         return directLink;
@@ -183,36 +208,62 @@ namespace AnimepaheCLI
             throw std::runtime_error(fmt::format("Failed to Get Kwik from {}, StatusCode: {}", link, response.status_code));
         }
         
-        RE2::GlobalReplace(&response.text, R"((\r\n|\r|\n))", "");
-        std::string cleanText = sanitize_utf8(response.text);
-        re2::StringPiece NORMAL_CONSUME = cleanText;
-        re2::StringPiece ENCODE_CONSUME = cleanText;
+        std::string cleanText = response.text;
+        RE2::GlobalReplace(&cleanText, R"((\r\n|\r|\n))", "");
+        cleanText = sanitize_utf8(cleanText);
+        
         std::string kwikLink;
         
-        RE2::FindAndConsume(&NORMAL_CONSUME, R"re("(https?://kwik\.[^/\s"]+/[^/\s"]+/[^"\s]*)")re", &kwikLink);
-        if (kwikLink.empty())
+        // First attempt: direct link extraction
+        re2::StringPiece normal_search(cleanText);
+        bool found_direct = RE2::FindAndConsume(&normal_search, R"re("(https?://kwik\.[^/\s"]+/[^/\s"]+/[^"\s]*)")re", &kwikLink);
+        
+        if (!found_direct || kwikLink.empty())
         {
-            RE2::FindAndConsume(
-                &ENCODE_CONSUME,
+            // Second attempt: decode and extract
+            re2::StringPiece encode_search(cleanText);
+            std::string temp_encoded, temp_alphabet, temp_offset_str, temp_base_str;
+            
+            bool found_params = RE2::FindAndConsume(
+                &encode_search,
                 R"re(\(\s*"([^",]*)"\s*,\s*\d+\s*,\s*"([^",]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*\d+[a-zA-Z]?\s*\))re",
-                &encodedString, &alphabetKey, &offset, &base
+                &temp_encoded, &temp_alphabet, &temp_offset_str, &temp_base_str
             );
 
-            std::string decodedString = decodeJSStyle(encodedString, zp, alphabetKey, offset, base, placeholder);
-            re2::StringPiece decoded(decodedString);
-            RE2::FindAndConsume(&decoded, R"re("(https?://kwik\.[^/\s"]+/[^/\s"]+/[^"\s]*)")re", &kwikLink);
-            RE2::Replace(&kwikLink, R"re((https:\/\/kwik\.[^\/]+\/)d\/)re", "\\1f/");
+            if (!found_params)
+            {
+                throw std::runtime_error(fmt::format("Failed to extract encoding parameters from {}", link));
+            }
+
+            try 
+            {
+                int temp_offset = std::stoi(temp_offset_str);
+                int temp_base = std::stoi(temp_base_str);
+                
+                std::string decodedString = decodeJSStyle(temp_encoded, zp, temp_alphabet, temp_offset, temp_base, placeholder);
+                re2::StringPiece decoded_search(decodedString);
+                
+                bool found_decoded = RE2::FindAndConsume(&decoded_search, R"re("(https?://kwik\.[^/\s"]+/[^/\s"]+/[^"\s]*)")re", &kwikLink);
+                
+                if (!found_decoded || kwikLink.empty())
+                {
+                    throw std::runtime_error(fmt::format("Failed to extract Kwik link from decoded content"));
+                }
+                
+                RE2::Replace(&kwikLink, R"re((https:\/\/kwik\.[^\/]+\/)d\/)re", "\\1f/");
+            }
+            catch (const std::exception& e)
+            {
+                throw std::runtime_error(fmt::format("Failed to decode and extract Kwik link: {}", e.what()));
+            }
         }
 
-        if (kwikLink.empty())
-        {
-            throw std::runtime_error(fmt::format("Failed to extract Kwik link from {}", link));
-        }
-        
         fmt::print("\r * Extracting Kwik Link :");
         fmt::print(fmt::fg(fmt::color::lime_green), " OK!\n");
         fmt::print(" * Fetching Kwik Direct Link...");
+        
         std::string directLink = fetch_kwik_dlink(kwikLink);
+        
         fmt::print("\r * Fetching Kwik Direct Link :");
         fmt::print(fmt::fg(fmt::color::lime_green), " OK!\n");
         return directLink;
