@@ -13,6 +13,12 @@ using json = nlohmann::json;
 namespace AnimepaheCLI
 {
     cpr::Cookies cookies = cpr::Cookies{{"__ddg2_", ""}};
+    const char* CLEAR_LINE = "\033[2K";   // Clear entire line
+    const char* MOVE_UP = "\033[1A";      // Move cursor up 1 line
+    const char* CURSOR_START = "\r";      // Return to start of line
+    
+    /* Extract Kwik from pahe.win */
+    KwikPahe kwikpahe;
 
     cpr::Header Animepahe::getHeaders(const std::string &link)
     {
@@ -64,7 +70,7 @@ namespace AnimepaheCLI
                 type = unescape_html_entities(type);
             }
 
-            if (RE2::FindAndConsume(&TYPE_CONSUME, R"re(Episode[^>]*>\s+(\d*)</p)re", &episodesCount))
+            if (RE2::FindAndConsume(&TYPE_CONSUME, R"re(Episode[^>]*>\s*(\S*)</p)re", &episodesCount))
             {
                 episodesCount = unescape_html_entities(episodesCount);
             }
@@ -267,9 +273,13 @@ namespace AnimepaheCLI
                 {
                     throw std::runtime_error(fmt::format("Invalid episode range: {}-{} for series with {} episodes", episodes[0], episodes[1], epCount));
                 }
-                for (int i = 0; i < seriesEpLinks.size(); ++i)
+
+                std::vector<int> paginationPages = getPaginationRange(episodes[0], episodes[1]);
+                int offset = paginationPages[0] == 1 ? 0 : (30 * (paginationPages[0]-1));
+                
+                for (int i = offset; i < (seriesEpLinks.size() + offset); ++i)
                 {
-                    const std::string &pLink = seriesEpLinks[i];
+                    const std::string &pLink = seriesEpLinks[i-offset];
 
                     if ((i >= episodes[0] - 1 && i <= episodes[1] - 1))
                     {
@@ -326,12 +336,6 @@ namespace AnimepaheCLI
             fmt::print(" * Episodes Range: {}\n", isAllEpisodes ? "All" : vectorToString(episodes));
         }
         
-        const char* CLEAR_LINE = "\033[2K";   // Clear entire line
-        const char* MOVE_UP = "\033[1A";      // Move cursor up 1 line
-        const char* CURSOR_START = "\r";      // Return to start of line
-
-        /* Extract Kwik from pahe.win */
-        KwikPahe kwikpahe;
         std::vector<std::string> directLinks;
         int logEpNum = isAllEpisodes ? 1 : episodes[0];
         for (int i = 0; i < epData.size(); ++i)

@@ -150,13 +150,13 @@ namespace AnimepaheCLI
 
         RE2::FindAndConsume(
             &ENCODE_CONSUME,
-            R"re(\("(\S*)",\d*,"(\S*)",(\d*),(\d*),\d*\S\))re",
+            R"re(\(\s*"([^",]*)"\s*,\s*\d+\s*,\s*"([^",]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*\d+[a-zA-Z]?\s*\))re",
             &encodedString, &alphabetKey, &offset, &base
         );
 
         re2::StringPiece decoded = decodeJSStyle(encodedString, zp, alphabetKey, offset, base, placeholder);
         // Step 1: extract the outer tag content
-        RE2::FindAndConsume(&decoded, R"re("(https?://kwik\.\S+/\S+/[^"]*)")re", &link);
+        RE2::FindAndConsume(&decoded, R"re("(https?://kwik\.[^/\s"]+/[^/\s"]+/[^"\s]*)")re", &link);
         // Step 2: look for the token separately
         RE2::FindAndConsume(&decoded, R"re(name="_token"[^"]*"(\S*)">)re", &token);
         /* kwik session */
@@ -164,7 +164,7 @@ namespace AnimepaheCLI
 
         if (token.empty() || link.empty())
         {
-            fetch_kwik_dlink(kwikLink, retries - 1);
+            return fetch_kwik_dlink(kwikLink, retries - 1);
         }
         else
         {
@@ -188,20 +188,19 @@ namespace AnimepaheCLI
         re2::StringPiece NORMAL_CONSUME = cleanText;
         re2::StringPiece ENCODE_CONSUME = cleanText;
         std::string kwikLink;
-        std::string directLink;
         
-        RE2::FindAndConsume(&NORMAL_CONSUME, R"re("(https?://kwik\.\S*/\S*/[^"]*)")re", &kwikLink);
+        RE2::FindAndConsume(&NORMAL_CONSUME, R"re("(https?://kwik\.[^/\s"]+/[^/\s"]+/[^"\s]*)")re", &kwikLink);
         if (kwikLink.empty())
         {
             RE2::FindAndConsume(
                 &ENCODE_CONSUME,
-                R"re(\("(\S*)",\d*,"(\S*)",(\d*),(\d*),\d*\S\))re",
+                R"re(\(\s*"([^",]*)"\s*,\s*\d+\s*,\s*"([^",]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*\d+[a-zA-Z]?\s*\))re",
                 &encodedString, &alphabetKey, &offset, &base
             );
 
             std::string decodedString = decodeJSStyle(encodedString, zp, alphabetKey, offset, base, placeholder);
             re2::StringPiece decoded(decodedString);
-            RE2::FindAndConsume(&decoded, R"re("(https?://kwik\.\S*/\S*/[^"]*)")re", &kwikLink);
+            RE2::FindAndConsume(&decoded, R"re("(https?://kwik\.[^/\s"]+/[^/\s"]+/[^"\s]*)")re", &kwikLink);
             RE2::Replace(&kwikLink, R"re((https:\/\/kwik\.[^\/]+\/)d\/)re", "\\1f/");
         }
 
@@ -209,16 +208,13 @@ namespace AnimepaheCLI
         {
             throw std::runtime_error(fmt::format("Failed to extract Kwik link from {}", link));
         }
-        else
-        {
-            fmt::print("\r * Extracting Kwik Link :");
-            fmt::print(fmt::fg(fmt::color::lime_green), " OK!\n");
-            fmt::print(" * Fetching Kwik Direct Link...");
-            directLink = fetch_kwik_dlink(kwikLink);
-            fmt::print("\r * Fetching Kwik Direct Link :");
-            fmt::print(fmt::fg(fmt::color::lime_green), " OK!\n");
-        }
-
+        
+        fmt::print("\r * Extracting Kwik Link :");
+        fmt::print(fmt::fg(fmt::color::lime_green), " OK!\n");
+        fmt::print(" * Fetching Kwik Direct Link...");
+        std::string directLink = fetch_kwik_dlink(kwikLink);
+        fmt::print("\r * Fetching Kwik Direct Link :");
+        fmt::print(fmt::fg(fmt::color::lime_green), " OK!\n");
         return directLink;
     }
 }
