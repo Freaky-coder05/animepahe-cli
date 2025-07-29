@@ -9,7 +9,6 @@ A command-line interface for downloading anime episodes from AnimePahe.ru with s
 ## ⚠️ Beta Notice
 
 This is a **beta version** and may encounter issues during operation. The current version has the following limitations:
-- Some episodes may fail, but retrying that episode always work.
 - No support for selected quality, it will always select max available quality in JPN audio.
 - Download via cli tool is not yet implementd, but direct links can be saved to links.txt
 - Zip feature is not yet available
@@ -22,6 +21,8 @@ This is a **beta version** and may encounter issues during operation. The curren
 - **Export Functionality**: Generate download links without downloading
 - **Archive Support**: Compress downloaded episodes into ZIP archives
 - **Cross-Platform**: Native Windows executable with plans for multi-platform support
+- **Reliable Link Extraction**: Guaranteed direct link extraction for all episodes
+- **Universal Compatibility**: Works with all anime series from AnimePahe.ru
 
 ## 🚀 Installation
 
@@ -99,7 +100,6 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 ## 🐛 Known Issues
 
 - Resolution cannot be selected. max resolution by default.
-- Some anime series may have parsing issues
 - Network timeouts may occur with slow connections
 - Large batch downloads may consume significant system resources
 
