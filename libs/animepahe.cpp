@@ -13,10 +13,10 @@ using json = nlohmann::json;
 namespace AnimepaheCLI
 {
     cpr::Cookies cookies = cpr::Cookies{{"__ddg2_", ""}};
-    const char* CLEAR_LINE = "\033[2K";   // Clear entire line
-    const char* MOVE_UP = "\033[1A";      // Move cursor up 1 line
-    const char* CURSOR_START = "\r";      // Return to start of line
-    
+    const char *CLEAR_LINE = "\033[2K"; // Clear entire line
+    const char *MOVE_UP = "\033[1A";    // Move cursor up 1 line
+    const char *CURSOR_START = "\r";    // Return to start of line
+
     /* Extract Kwik from pahe.win */
     KwikPahe kwikpahe;
 
@@ -38,7 +38,7 @@ namespace AnimepaheCLI
             cpr::Header{getHeaders(link)}, cookies);
 
         fmt::print("\r * Requesting Info : ");
-        
+
         if (response.status_code != 200)
         {
             fmt::print(fmt::fg(fmt::color::indian_red), "FAILED!\n");
@@ -96,7 +96,7 @@ namespace AnimepaheCLI
         }
     }
 
-    std::map<std::string, std::string> Animepahe::fetch_episode(const std::string &link)
+    std::map<std::string, std::string> Animepahe::fetch_episode(const std::string &link, const int &targetRes)
     {
         std::vector<std::map<std::string, std::string>> episodeData;
         cpr::Response response = cpr::Get(
@@ -140,33 +140,48 @@ namespace AnimepaheCLI
             throw std::runtime_error(fmt::format("\n No episodes found in {}", link));
         }
 
-        /** 
-         * Find the episode with the highest resolution
+        /**
+         * check if there is a provided resolution
+         * if there is a match then return it otherwise Find the episode with the highest resolution
          * Since Animepahe sort JPN episodes at top this selects the highest resolution
          * JPN Episode and igore all others. btw who wants to watch anime in ENG anyway ?
-        */
-        std::map<std::string, std::string> *maxEpResMap = nullptr;
+         */
+        std::map<std::string, std::string> *selectedEpMap = nullptr;
         int maxEpRes = 0;
+        std::map<std::string, std::string> *maxEpMap = nullptr;
+        bool isTargetResProvided = targetRes != 0;
 
         for (auto &episode : episodeData)
         {
             int epResValue = std::stoi(episode.at("epRes"));
+            /* Track max resolution episode */
             if (epResValue > maxEpRes)
             {
                 maxEpRes = epResValue;
-                maxEpResMap = &episode;
+                maxEpMap = &episode;
+            }
+            /* Check for exact target match */
+            if (isTargetResProvided && epResValue == targetRes)
+            {
+                /* early exit if exact match found */
+                selectedEpMap = &episode;
+                break;
             }
         }
-        
-        return *maxEpResMap;
+        /* Use exact match if found, otherwise fall back to max */
+        if (selectedEpMap == nullptr)
+        {
+            selectedEpMap = maxEpMap;
+        }
+
+        return *selectedEpMap;
     }
 
     std::vector<std::string> Animepahe::fetch_series(
         const std::string &link,
         const int epCount,
         bool isAllEpisodes,
-        const std::vector<int>& episodes
-    )
+        const std::vector<int> &episodes)
     {
         std::vector<std::string> links;
         std::vector<int> paginationPages;
@@ -215,7 +230,7 @@ namespace AnimepaheCLI
         return links;
     }
 
-    int Animepahe::get_series_episode_count(const std::string& link)
+    int Animepahe::get_series_episode_count(const std::string &link)
     {
         std::string id;
         RE2::PartialMatch(link, R"(anime/([a-f0-9-]{36}))", &id);
@@ -243,6 +258,7 @@ namespace AnimepaheCLI
     std::vector<std::map<std::string, std::string>> Animepahe::extract_link_content(
         const std::string &link,
         const std::vector<int> &episodes,
+        const int targetRes,
         bool isSeries,
         bool isAllEpisodes)
     {
@@ -252,14 +268,14 @@ namespace AnimepaheCLI
         {
             const int epCount = get_series_episode_count(link);
             std::vector<std::string> seriesEpLinks = fetch_series(link, epCount, isAllEpisodes, episodes);
-            
+
             if (isAllEpisodes)
             {
                 for (int i = 0; i < seriesEpLinks.size(); ++i)
                 {
                     const std::string &pLink = seriesEpLinks[i];
                     fmt::print("\r * Requesting Episode : EP{} ", padIntWithZero(i + 1));
-                    std::map<std::string, std::string> epContent = fetch_episode(pLink);
+                    std::map<std::string, std::string> epContent = fetch_episode(pLink, targetRes);
                     fflush(stdout);
                     if (!epContent.empty())
                     {
@@ -275,16 +291,16 @@ namespace AnimepaheCLI
                 }
 
                 std::vector<int> paginationPages = getPaginationRange(episodes[0], episodes[1]);
-                int offset = paginationPages[0] == 1 ? 0 : (30 * (paginationPages[0]-1));
-                
+                int offset = paginationPages[0] == 1 ? 0 : (30 * (paginationPages[0] - 1));
+
                 for (int i = offset; i < (seriesEpLinks.size() + offset); ++i)
                 {
-                    const std::string &pLink = seriesEpLinks[i-offset];
+                    const std::string &pLink = seriesEpLinks[i - offset];
 
                     if ((i >= episodes[0] - 1 && i <= episodes[1] - 1))
                     {
                         fmt::print("\r * Requesting Episode : EP{} ", padIntWithZero(i + 1));
-                        std::map<std::string, std::string> epContent = fetch_episode(pLink);
+                        std::map<std::string, std::string> epContent = fetch_episode(pLink, targetRes);
                         fflush(stdout);
                         if (!epContent.empty())
                         {
@@ -297,7 +313,7 @@ namespace AnimepaheCLI
         else
         {
 
-            std::map<std::string, std::string> epContent = fetch_episode(link);
+            std::map<std::string, std::string> epContent = fetch_episode(link, targetRes);
             if (epContent.empty())
             {
                 fmt::print("\n * Error: No episode data found for {}\n", link);
@@ -315,14 +331,16 @@ namespace AnimepaheCLI
     void Animepahe::extractor(
         bool isSeries,
         const std::string &link,
+        const int targetRes,
         bool isAllEpisodes,
         const std::vector<int> &episodes,
         bool exportLinks,
-        bool createZip
-    )
+        bool createZip)
     {
         /* print config */
-        fmt::print("\n * exportLinks: ");
+        fmt::print("\n * targetResolution: ");
+        targetRes != 0 ? fmt::print(fmt::fg(fmt::color::cyan), fmt::format("{}p\n", targetRes)) : fmt::print("Max Available\n");
+        fmt::print(" * exportLinks: ");
         exportLinks ? fmt::print(fmt::fg(fmt::color::cyan), "true\n") : fmt::print("false\n");
         fmt::print(" * createZip: ", createZip);
         createZip ? fmt::print(fmt::fg(fmt::color::cyan), "true\n") : fmt::print("false\n");
@@ -330,12 +348,12 @@ namespace AnimepaheCLI
         extract_link_metadata(link, isSeries);
 
         /* Extract Links */
-        const std::vector<std::map<std::string, std::string>> epData = extract_link_content(link, episodes, isSeries, isAllEpisodes);
+        const std::vector<std::map<std::string, std::string>> epData = extract_link_content(link, episodes, targetRes, isSeries, isAllEpisodes);
         if (isSeries)
         {
             fmt::print(" * Episodes Range: {}\n", isAllEpisodes ? "All" : vectorToString(episodes));
         }
-        
+
         std::vector<std::string> directLinks;
         int logEpNum = isAllEpisodes ? 1 : episodes[0];
         for (int i = 0; i < epData.size(); ++i)
@@ -343,7 +361,8 @@ namespace AnimepaheCLI
             fmt::print("\n\r * Processing :");
             fmt::print(fmt::fg(fmt::color::cyan), fmt::format(" EP{}", padIntWithZero(logEpNum)));
             std::string link = kwikpahe.extract_kwik_link(epData[i].at("dPaheLink"));
-            for (int i = 0; i < 3; ++i) {
+            for (int i = 0; i < 3; ++i)
+            {
                 fmt::print("{}{}{}", MOVE_UP, CLEAR_LINE, CURSOR_START);
             }
             fmt::print("\r * Processing : EP{}", padIntWithZero(logEpNum));
@@ -364,7 +383,7 @@ namespace AnimepaheCLI
             std::ofstream exportfile("links.txt");
             if (exportfile.is_open())
             {
-                for (auto &link: directLinks)
+                for (auto &link : directLinks)
                 {
                     exportfile << link << "\n";
                 }
@@ -376,6 +395,5 @@ namespace AnimepaheCLI
         {
             fmt::print("\n\n * createZip: {}\n", createZip);
         }
-
     }
 }
