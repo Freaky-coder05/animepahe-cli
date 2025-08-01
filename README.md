@@ -15,10 +15,10 @@ This is a **beta version** and may encounter issues during operation. The curren
 
 ## 📋 Features
 
-- **Quality Selection**: Choose specific video quality (720p, 1080p, etc.) with automatic fallback to maximum available quality
+- **Quality Selection**: Choose specific video quality (720p, 1080p, etc.) with automatic fallback options including lowest (-1) and maximum (0) quality settings
 - **Batch Downloads**: Download multiple episodes or entire series
 - **Episode Range Selection**: Choose specific episode ranges for targeted downloads
-- **Export Functionality**: Generate download links without downloading
+- **Export Functionality**: Generate download links without downloading with custom filename support
 - **Archive Support**: Compress downloaded episodes into ZIP archives
 - **Cross-Platform**: Native Windows executable with plans for multi-platform support
 - **Reliable Link Extraction**: Guaranteed direct link extraction for all episodes
@@ -56,8 +56,9 @@ animepahe-cli-beta.exe [OPTIONS]
 ### Optional Arguments
 | Flag | Long Form | Description | Example |
 |------|-----------|-------------|---------|
-| `-q` | `--quality` | Target video quality (without 'p' suffix) | `720`, `1080`, `360` |
-| `-x` | `--export` | Export download links to `links.txt` (cancels download) | |
+| `-q` | `--quality` | Target video quality (`-1` for lowest, `0` for max, or custom like `720`, `1080`) | `-1`, `0`, `720`, `1080`, `360` |
+| `-x` | `--export` | Export download links to file (cancels download) | |
+| `-f` | `--filename` | Custom filename for exported file (use with `-x`) | `"akame-ga-kill-links.txt"` |
 | `-z` | `--zip` | Compress all downloaded episodes into a single ZIP archive | |
 
 ### Examples
@@ -77,14 +78,24 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e all -q 720
 ```
 
-#### Download with Quality Selection (Alternative Syntax)
+#### Download with Lowest Quality
 ```bash
-animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-12 --quality 360
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-12 -q -1
+```
+
+#### Download with Maximum Quality
+```bash
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-12 -q 0
 ```
 
 #### Export Download Links Only
 ```bash
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e all -x
+```
+
+#### Export Links with Custom Filename
+```bash
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e all -x -f "akame-ga-kill-links.txt"
 ```
 
 #### Download and Create ZIP Archive
@@ -100,10 +111,18 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 ## 🔧 Technical Details
 
 ### Quality Selection
-- Specify target quality without the 'p' suffix (e.g., `720`, `1080`, `360`)
-- If the specified quality is available, it will be selected
-- If not available, the tool automatically falls back to the maximum available quality
+- **`-1`**: Selects the lowest available quality
+- **`0`**: Selects the maximum available quality (default behavior)
+- **Custom values**: Specify target quality without the 'p' suffix (e.g., `720`, `1080`, `360`)
+- If no quality is specified, automatically falls back to maximum available quality
+- If a custom quality is not available, the tool automatically falls back to the maximum available quality
 - All downloads maintain Japanese audio by default
+
+### Export Functionality
+- Use `-x` or `--export` to generate download links without downloading
+- Default export filename is `links.txt`
+- Use `-f` or `--filename` with `-x` to specify a custom export filename
+- Custom filename can include path information for organized exports
 
 ### Dependencies
 - **CPR**: HTTP client library for C++
