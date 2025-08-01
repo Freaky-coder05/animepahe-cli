@@ -11,6 +11,7 @@
 namespace AnimepaheCLI
 {
     int getPage(int number);
+    bool isValidTxtFilename(const std::string& filename);
     std::vector<int> getPaginationRange(int start, int end);
     std::string sanitize_utf8(const std::string &input);
     bool isFullSeriesURL(const std::string &url);

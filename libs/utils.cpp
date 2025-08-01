@@ -14,6 +14,19 @@ namespace AnimepaheCLI
         return std::max(1, (number + 29) / 30);
     }
 
+    bool isValidTxtFilename(const std::string& filename) {
+        // Disallow any path separator
+        if (filename.find('/') != std::string::npos || filename.find('\\') != std::string::npos) {
+            return false;
+        }
+
+        // Check with RE2 regex
+        // Pattern: Only letters, digits, underscores, hyphens, dots, ends with ".txt"
+        static const RE2 pattern(R"(^[a-zA-Z0-9_\-\.]+\.txt$)");
+
+        return RE2::FullMatch(filename, pattern);
+    }
+
     std::vector<int> getPaginationRange(int start, int end)
     {
         int start_page = getPage(start);
