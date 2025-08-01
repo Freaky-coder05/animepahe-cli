@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         }
         if (!isValidTxtFilename(export_filename))
         {
-            throw std::runtime_error(fmt::format("{} is not valid for -f,--filename [filename].txt", export_filename));
+            throw std::runtime_error(fmt::format("{} is not valid for -f,--filename [filename]", export_filename));
         }
         if (targetRes < -1)
         {
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     }
     catch (const cxxopts::exceptions::missing_argument)
     {
-        fmt::print("\n Usage: -l,--link \"https://animepahe.ru/anime/....\" -e,--episodes [all,1-12] -q,--quality [0-max,-1-min,720|360] -x,--export, -f,--filename [filename].txt -z,--zip\n\n");
+        fmt::print("\n Usage: -l,--link \"https://animepahe.ru/anime/....\" -e,--episodes [all,1-12] -q,--quality [0-max,-1-min,720|360] -x,--export, -f,--filename [filename] -z,--zip\n\n");
         return 1;
     }
     catch (const std::runtime_error &e)

@@ -22,7 +22,7 @@ namespace AnimepaheCLI
 
         // Check with RE2 regex
         // Pattern: Only letters, digits, underscores, hyphens, dots, ends with ".txt"
-        static const RE2 pattern(R"(^[a-zA-Z0-9_\-\.]+\.txt$)");
+        static const RE2 pattern(R"(^[a-zA-Z0-9_\-\.]+\.\S*$)");
 
         return RE2::FullMatch(filename, pattern);
     }
