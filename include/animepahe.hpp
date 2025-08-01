@@ -32,6 +32,7 @@ namespace AnimepaheCLI
             const int targetRes,
             bool isAllEpisodes,
             const std::vector<int> &episodes,
+            const std::string &export_filename,
             bool exportLinks = false,
             bool createZip = false
         );

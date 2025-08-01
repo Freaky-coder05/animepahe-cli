@@ -146,32 +146,55 @@ namespace AnimepaheCLI
          * Since Animepahe sort JPN episodes at top this selects the highest resolution
          * JPN Episode and igore all others. btw who wants to watch anime in ENG anyway ?
          */
-        std::map<std::string, std::string> *selectedEpMap = nullptr;
-        int maxEpRes = 0;
-        std::map<std::string, std::string> *maxEpMap = nullptr;
-        bool isTargetResProvided = targetRes != 0;
+        std::map<std::string, std::string>* selectedEpMap = nullptr;
+        std::map<std::string, std::string>* maxEpMap = nullptr;
+        std::map<std::string, std::string>* minEpMap = nullptr;
 
-        for (auto &episode : episodeData)
+        int maxEpRes = 0;
+        int minEpRes = INT_MAX; /* use INT_MAX to ensure proper min comparison */
+
+        bool selectHighestQuality = (targetRes == 0);
+        bool selectLowestQuality  = (targetRes == -1);
+        bool isCustomQualityProvided = (targetRes > 0); /* only valid custom inputs are > 0 */
+
+        for (auto& episode : episodeData)
         {
             int epResValue = std::stoi(episode.at("epRes"));
-            /* Track max resolution episode */
+
+            /* Track highest */
             if (epResValue > maxEpRes)
             {
                 maxEpRes = epResValue;
                 maxEpMap = &episode;
             }
-            /* Check for exact target match */
-            if (isTargetResProvided && epResValue == targetRes)
+
+            /* Track lowest */
+            if (epResValue < minEpRes)
             {
-                /* early exit if exact match found */
+                minEpRes = epResValue;
+                minEpMap = &episode;
+            }
+
+            /* If custom quality requested */
+            if (isCustomQualityProvided && epResValue == targetRes)
+            {
                 selectedEpMap = &episode;
-                break;
+                break; /* exact match found, no need to continue */
             }
         }
-        /* Use exact match if found, otherwise fall back to max */
+
+        /* Final decision */
         if (selectedEpMap == nullptr)
         {
-            selectedEpMap = maxEpMap;
+            if (selectHighestQuality) {
+                selectedEpMap = maxEpMap;
+            } else if (selectLowestQuality) {
+                selectedEpMap = minEpMap;
+            }
+            /* else (custom and not found) fallback to max */
+            else {
+                selectedEpMap = maxEpMap;
+            }
         }
 
         return *selectedEpMap;
@@ -334,14 +357,28 @@ namespace AnimepaheCLI
         const int targetRes,
         bool isAllEpisodes,
         const std::vector<int> &episodes,
+        const std::string &export_filename,
         bool exportLinks,
-        bool createZip)
+        bool createZip
+    )
     {
         /* print config */
         fmt::print("\n * targetResolution: ");
-        targetRes != 0 ? fmt::print(fmt::fg(fmt::color::cyan), fmt::format("{}p\n", targetRes)) : fmt::print("Max Available\n");
+        if (targetRes == 0)
+        {
+            fmt::print("Max Available\n");
+        }
+        else if (targetRes == -1)
+        {
+            fmt::print(fmt::fg(fmt::color::cyan), "Lowest Available\n");
+        }
+        else
+        {
+            fmt::print(fmt::fg(fmt::color::cyan), fmt::format("{}p\n", targetRes));
+        }
         fmt::print(" * exportLinks: ");
-        exportLinks ? fmt::print(fmt::fg(fmt::color::cyan), "true\n") : fmt::print("false\n");
+        exportLinks ? fmt::print(fmt::fg(fmt::color::cyan), "true") : fmt::print("false");
+        (exportLinks && export_filename != "links.txt") ? fmt::print(fmt::fg(fmt::color::cyan), fmt::format(" [{}]\n", export_filename)) : fmt::print("\n");
         fmt::print(" * createZip: ", createZip);
         createZip ? fmt::print(fmt::fg(fmt::color::cyan), "true\n") : fmt::print("false\n");
         /* Request Metadata */
@@ -380,7 +417,7 @@ namespace AnimepaheCLI
 
         if (exportLinks)
         {
-            std::ofstream exportfile("links.txt");
+            std::ofstream exportfile(export_filename);
             if (exportfile.is_open())
             {
                 for (auto &link : directLinks)
@@ -389,7 +426,7 @@ namespace AnimepaheCLI
                 }
                 exportfile.close();
             }
-            fmt::print("\n\n * Exported : links.txt\n\n");
+            fmt::print("\n\n * Exported : {}\n\n", export_filename);
         }
         else
         {
