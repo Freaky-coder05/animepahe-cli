@@ -381,15 +381,19 @@ namespace AnimepaheCLI
         (exportLinks && export_filename != "links.txt") ? fmt::print(fmt::fg(fmt::color::cyan), fmt::format(" [{}]\n", export_filename)) : fmt::print("\n");
         fmt::print(" * createZip: ", createZip);
         createZip ? fmt::print(fmt::fg(fmt::color::cyan), "true\n") : fmt::print("false\n");
+
+        /* Requested Episodes Range */
+        if (isSeries)
+        {
+            fmt::print(" * episodesRange: ");
+            isAllEpisodes ? fmt::print("All") : fmt::print(fmt::fg(fmt::color::cyan), vectorToString(episodes));
+            fmt::print("\n");
+        }
         /* Request Metadata */
         extract_link_metadata(link, isSeries);
 
         /* Extract Links */
         const std::vector<std::map<std::string, std::string>> epData = extract_link_content(link, episodes, targetRes, isSeries, isAllEpisodes);
-        if (isSeries)
-        {
-            fmt::print(" * Episodes Range: {}\n", isAllEpisodes ? "All" : vectorToString(episodes));
-        }
 
         std::vector<std::string> directLinks;
         int logEpNum = isAllEpisodes ? 1 : episodes[0];
