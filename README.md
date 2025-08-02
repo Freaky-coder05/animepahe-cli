@@ -57,11 +57,11 @@ animepahe-cli-beta.exe [OPTIONS]
 | Flag | Long Form | Description | Example |
 |------|-----------|-------------|---------|
 | `-l` | `--link` | Valid AnimePahe.ru anime URL | `"https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066"` |
-| `-e` | `--episodes` | Episode selection (`all` or range like `1-12`) | `all`, `1-12`, `5-25` |
 
 ### Optional Arguments
 | Flag | Long Form | Description | Example |
 |------|-----------|-------------|---------|
+| `-e` | `--episodes` | Episode selection (`all` or range like `1-12`). Defaults to `all` if not provided | `all`, `1-12`, `5-25` |
 | `-q` | `--quality` | Target video quality (`-1` for lowest, `0` for max, or custom like `720`, `1080`) | `-1`, `0`, `720`, `1080`, `360` |
 | `-x` | `--export` | Export download links to file (cancels download) | |
 | `-f` | `--filename` | Custom filename for exported file (use with `-x`) | `"akame-ga-kill-links.txt"` |
@@ -74,7 +74,12 @@ animepahe-cli-beta.exe [OPTIONS]
 animepahe-cli-beta.exe --upgrade
 ```
 
-#### Download All Episodes
+#### Download All Episodes (Default Behavior)
+```bash
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066"
+```
+
+#### Download All Episodes (Explicit)
 ```bash
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e all
 ```
@@ -86,7 +91,7 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 
 #### Download with Specific Quality
 ```bash
-animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e all -q 720
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -q 720
 ```
 
 #### Download with Lowest Quality
@@ -101,12 +106,17 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 
 #### Export Download Links Only
 ```bash
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -x
+```
+
+#### Export All Episodes Links (Explicit)
+```bash
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e all -x
 ```
 
 #### Export Links with Custom Filename
 ```bash
-animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e all -x -f "akame-ga-kill-links.txt"
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -x -f "akame-ga-kill-links.txt"
 ```
 
 #### Download and Create ZIP Archive
@@ -127,6 +137,12 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 - Automatically checks for updates and replaces the current executable
 - Maintains backward compatibility with existing configurations
 
+### Episode Selection
+- **Default behavior**: When `-e` or `--episodes` is not provided, all episodes are downloaded
+- **`all`**: Explicitly downloads all available episodes
+- **Range format**: Use formats like `1-12` or `5-25` for specific episode ranges
+- Episode selection applies to both download and export operations
+
 ### Quality Selection
 - **`-1`**: Selects the lowest available quality
 - **`0`**: Selects the maximum available quality (default behavior)
@@ -140,6 +156,7 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 - Default export filename is `links.txt`
 - Use `-f` or `--filename` with `-x` to specify a custom export filename
 - Custom filename can include path information for organized exports
+- When episodes are not specified with export, all episodes are exported by default
 
 ### Platform Support
 - **Windows**: Fully supported with native executable
