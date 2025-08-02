@@ -4,7 +4,7 @@
 [![Release](https://img.shields.io/github/v/release/Danushka-Madushan/animepahe-cli?include_prereleases)](https://github.com/Danushka-Madushan/animepahe-cli/releases)
 [![License](https://img.shields.io/github/license/Danushka-Madushan/animepahe-cli)](LICENSE)
 
-A command-line interface for downloading anime episodes from AnimePahe.ru with support for batch downloads, episode ranges, quality selection, and export functionality.
+A command-line interface for downloading anime episodes from AnimePahe.ru with support for batch downloads, episode ranges, quality selection, export functionality, and automatic updates.
 
 ## ⚠️ Beta Notice
 
@@ -15,12 +15,13 @@ This is a **beta version** and may encounter issues during operation. The curren
 
 ## 📋 Features
 
+- **Self-Updating**: Automatically update to the latest version with the `--upgrade` argument
 - **Quality Selection**: Choose specific video quality (720p, 1080p, etc.) with automatic fallback options including lowest (-1) and maximum (0) quality settings
 - **Batch Downloads**: Download multiple episodes or entire series
 - **Episode Range Selection**: Choose specific episode ranges for targeted downloads
 - **Export Functionality**: Generate download links without downloading with custom filename support
 - **Archive Support**: Compress downloaded episodes into ZIP archives
-- **Cross-Platform**: Native Windows executable with plans for multi-platform support
+- **Windows Native**: Optimized Windows executable with potential Linux support in the future
 - **Reliable Link Extraction**: Guaranteed direct link extraction for all episodes
 - **Universal Compatibility**: Works with all anime series from AnimePahe.ru
 
@@ -47,6 +48,11 @@ cmake --build . --config Release
 animepahe-cli-beta.exe [OPTIONS]
 ```
 
+### Standalone Arguments
+| Argument | Description | Example |
+|----------|-------------|---------|
+| `--upgrade` | Update to the latest version (can be used alone) | `animepahe-cli-beta.exe --upgrade` |
+
 ### Required Arguments
 | Flag | Long Form | Description | Example |
 |------|-----------|-------------|---------|
@@ -62,6 +68,11 @@ animepahe-cli-beta.exe [OPTIONS]
 | `-z` | `--zip` | Compress all downloaded episodes into a single ZIP archive | |
 
 ### Examples
+
+#### Update to Latest Version
+```bash
+animepahe-cli-beta.exe --upgrade
+```
 
 #### Download All Episodes
 ```bash
@@ -110,6 +121,12 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 
 ## 🔧 Technical Details
 
+### Self-Updating Feature
+- Use `--upgrade` to automatically download and install the latest version
+- The upgrade argument can be used independently without any other flags
+- Automatically checks for updates and replaces the current executable
+- Maintains backward compatibility with existing configurations
+
 ### Quality Selection
 - **`-1`**: Selects the lowest available quality
 - **`0`**: Selects the maximum available quality (default behavior)
@@ -124,6 +141,11 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 - Use `-f` or `--filename` with `-x` to specify a custom export filename
 - Custom filename can include path information for organized exports
 
+### Platform Support
+- **Windows**: Fully supported with native executable
+- **Linux**: Potential future support under consideration
+- **macOS**: Not supported and no plans for support
+
 ### Dependencies
 - **CPR**: HTTP client library for C++
 - **FMT**: Modern formatting library
@@ -137,11 +159,13 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 - CMake 3.5 or higher
 - C++20 compatible compiler
 - Git (for dependency fetching)
+- Windows development environment
 
 ## 🐛 Known Issues
 
 - Network timeouts may occur with slow connections
 - Large batch downloads may consume significant system resources
+- Update feature requires internet connection and appropriate permissions
 
 ## 🤝 Contributing
 
