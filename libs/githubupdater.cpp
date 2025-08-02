@@ -233,7 +233,9 @@ bool GitHubUpdater::checkAndUpdate(bool auto_update) {
     }
     
     fmt::print(" New version available : ");
-    fmt::print(fmt::fg(fmt::color::lime_green), release->tag_name);
+    const std::string TAG_NAME = release->tag_name;
+    fmt::print(fmt::fg(fmt::color::lime_green), TAG_NAME);
+    fmt::print(" Release Notes : https://github.com/Danushka-Madushan/animepahe-cli/releases/tag/{}", TAG_NAME);
 
     if (!auto_update) {
         std::cout << "\n\n Do you want to update? (y/n): ";
