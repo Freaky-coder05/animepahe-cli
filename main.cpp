@@ -16,6 +16,8 @@ int main(int argc, char *argv[])
      * all,1,1-15 all means full series, or episode range
      * -x, --export
      * saves all download links to a text file
+     * -f, --filename
+     * set custom export filename
      * -q, --quality
      * set target quality, if available it will select otherwise fall back to maximum
      * -z, --zip
