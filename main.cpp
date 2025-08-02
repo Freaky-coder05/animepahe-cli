@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     cxxopts::Options options("animepahe-cli", "AnimePahe CLI Downloader");
     options.add_options()
     ("l,link", "Input anime series link or a single episode link", cxxopts::value<std::string>())
-    ("e,episodes", "Specify episodes to download (all, 1-15)", cxxopts::value<std::string>())
+    ("e,episodes", "Specify episodes to download (all, 1-15)", cxxopts::value<std::string>()->default_value("all"))
     ("q,quality", "Set target quality", cxxopts::value<int>()->default_value("0"))
     ("x,export", "Export download links to a text file", cxxopts::value<bool>()->default_value("false"))
     ("f,filename", "Custom filname for exported file", cxxopts::value<std::string>()->default_value("links.txt"))
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     ("h,help", "Print usage");
 
     /* version tag */
-    const std::string VERSION = "v0.1.6-beta";
+    const std::string VERSION = "v0.1.7-beta";
 
     try
     {
