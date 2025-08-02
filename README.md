@@ -179,7 +179,9 @@ Contributions are welcome! Please feel free to submit issues, feature requests, 
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the DMNML v1.0 (Danushka-Madushan No Modification License).  
+You are allowed to use this software commercially or personally, but you may not modify, redistribute, or create derivative works.
+see the [LICENSE](LICENSE) file for details.
 
 ## ⚖️ Disclaimer
 
