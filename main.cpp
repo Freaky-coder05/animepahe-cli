@@ -4,6 +4,7 @@
 #include <string>
 #include <utils.hpp>
 #include <animepahe.hpp>
+#include <githubupdater.hpp>
 
 using namespace AnimepaheCLI;
 
@@ -13,7 +14,7 @@ int main(int argc, char *argv[])
      * -l, --link
      * input anime series link or a single episode link
      * -e, --episodes
-     * all,1,1-15 all means full series, or episode range
+     * all,1-15 all means full series, or episode range
      * -x, --export
      * saves all download links to a text file
      * -f, --filename
@@ -21,7 +22,9 @@ int main(int argc, char *argv[])
      * -q, --quality
      * set target quality, if available it will select otherwise fall back to maximum
      * -z, --zip
-     * creates a zip from downloaded items */
+     * creates a zip from downloaded items 
+     * --update
+     * self update to the latest version */
 
     cxxopts::Options options("animepahe-cli", "AnimePahe CLI Downloader");
     options.add_options()
@@ -31,14 +34,26 @@ int main(int argc, char *argv[])
     ("x,export", "Export download links to a text file", cxxopts::value<bool>()->default_value("false"))
     ("f,filename", "Custom filname for exported file", cxxopts::value<std::string>()->default_value("links.txt"))
     ("z,zip", "Create a zip from downloaded items", cxxopts::value<bool>()->default_value("false"))
+    ("upgrade", "Update to the latest version")
     ("h,help", "Print usage");
+
+    /* version tag */
+    const std::string VERSION = "v0.1.6-beta";
 
     try
     {
         auto result = options.parse(argc, argv);
+        GitHubUpdater updater("Danushka-Madushan", "animepahe-cli", VERSION);
+
         if (result.count("help"))
         {
             fmt::print("{}\n", options.help());
+            return 0;
+        }
+
+        if (result.count("upgrade"))
+        {
+            updater.checkAndUpdate();
             return 0;
         }
 
@@ -66,7 +81,17 @@ int main(int argc, char *argv[])
             throw std::runtime_error(fmt::format("{} is not valid for -q,--quality [0-max,-1-min,720|360]", targetRes));
         }
 
-        fmt::print("\n * Animepahe-CLI (v0.1.5-beta) https://github.com/Danushka-Madushan/animepahe-cli \n");
+        fmt::print("\n * Animepahe-CLI ({}) https://github.com/Danushka-Madushan/animepahe-cli \n", VERSION);
+
+        /* check for updates */
+        auto release = updater.checkForUpdate();
+        if (release)
+        {
+            fmt::print("\n * Update available : ");
+            fmt::print(fmt::fg(fmt::color::lime_green), release->tag_name);
+            fmt::print(" (use --upgrade to self update)");
+            fmt::print("\n");
+        }
 
         // Create an instance of Animepahe and call the extractor method
         Animepahe animepahe;
@@ -88,7 +113,7 @@ int main(int argc, char *argv[])
     }
     catch (const cxxopts::exceptions::missing_argument)
     {
-        fmt::print("\n Usage: -l,--link \"https://animepahe.ru/anime/....\" -e,--episodes [all,1-12] -q,--quality [0-max,-1-min,720|360] -x,--export, -f,--filename [filename] -z,--zip\n\n");
+        fmt::print("\n Usage: -l,--link \"https://animepahe.ru/anime/....\" -e,--episodes [all,1-12] -q,--quality [0-max,-1-min,720|360] -x,--export, -f,--filename [filename] -z,--zip, --update\n\n");
         return 1;
     }
     catch (const std::runtime_error &e)
