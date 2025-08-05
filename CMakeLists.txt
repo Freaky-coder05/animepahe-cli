@@ -3,7 +3,7 @@ project(AnimepaheCLI VERSION 0.1.7 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CPR_USE_SYSTEM_CURL OFF)
+set(CPR_USE_SYSTEM_CURL ON)
 # Configure Abseil options before making it available
 set(ABSL_PROPAGATE_CXX_STD ON)
 set(ABSL_ENABLE_INSTALL ON)
@@ -67,6 +67,7 @@ add_executable(
   libs/animepahe.cpp
   libs/kwikpahe.cpp
   libs/githubupdater.cpp
+  libs/downloader.cpp
   resource.rc
 )
 
