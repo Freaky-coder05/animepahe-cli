@@ -28,13 +28,13 @@ This is a **beta version** and may encounter issues during operation. The curren
 ## 🚀 Installation
 
 ### Windows
-1. Download the latest `animepahe-cli-beta.exe` from the [Releases](https://github.com/yourusername/animepahe-cli/releases) page
+1. Download the latest `animepahe-cli-beta.exe` from the [Releases](https://github.com/Danushka-Madushan/animepahe-cli/releases) page
 2. Place the executable in your desired directory
 3. Open Command Prompt or PowerShell in that directory
 
 ### Building from Source
 ```bash
-git clone https://github.com/yourusername/animepahe-cli.git
+git clone https://github.com/Danushka-Madushan/animepahe-cli.git
 cd animepahe-cli
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
@@ -239,5 +239,5 @@ This tool is for educational purposes only. Users are responsible for complying 
 ## 🔗 Links
 
 - [AnimePahe.ru](https://animepahe.ru) - Source website
-- [Issues](https://github.com/yourusername/animepahe-cli/issues) - Bug reports and feature requests
-- [Releases](https://github.com/yourusername/animepahe-cli/releases) - Download latest versions
+- [Issues](https://github.com/Danushka-Madushan/animepahe-cli/issues) - Bug reports and feature requests
+- [Releases](https://github.com/Danushka-Madushan/animepahe-cli/releases) - Download latest versions
