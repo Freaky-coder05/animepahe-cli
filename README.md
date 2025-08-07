@@ -15,7 +15,7 @@ This is a **beta version** and may encounter issues during operation. The curren
 ## 📋 Features
 
 - **Self-Updating**: Automatically update to the latest version with the `--upgrade` argument
-- **✅ Full Download Support**: Download anime episodes directly through the CLI tool with real-time progress tracking, speed monitoring, and ETA display
+- **Download Support**: Download anime episodes directly through the CLI tool with real-time progress tracking, speed monitoring, and ETA display
 - **Quality Selection**: Choose specific video quality (720p, 1080p, etc.) with automatic fallback options including lowest (-1) and maximum (0) quality settings
 - **Batch Downloads**: Download multiple episodes or entire series
 - **Episode Range Selection**: Choose specific episode ranges for targeted downloads
