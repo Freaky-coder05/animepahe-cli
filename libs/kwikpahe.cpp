@@ -115,7 +115,7 @@ namespace AnimepaheCLI
             // Extract the redirect location from the response header
             std::string redirectLocation;
             re2::StringPiece rawHeader(response.raw_header);
-            if (RE2::FindAndConsume(&rawHeader, R"re(Location:\s*(https?://\S+))re", &redirectLocation))
+            if (RE2::FindAndConsume(&rawHeader, R"re(ocation:\s*(https?://\S+))re", &redirectLocation))
             {
                 return redirectLocation;
             }
@@ -131,7 +131,7 @@ namespace AnimepaheCLI
     {
         if (retries <= 0)
         {
-            throw std::runtime_error("Kwik fetch failed: exceeded retry limit");
+            throw std::runtime_error(fmt::format("Kwik fetch failed: exceeded retry limit : {}", kwikLink));
         }
 
         cpr::Response response = cpr::Get(cpr::Url{kwikLink});
