@@ -1,4 +1,4 @@
-# AnimePahe CLI (Beta)
+# AnimePahe CLI
 
 [![Build Status](https://github.com/Danushka-Madushan/animepahe-cli/workflows/Build%20and%20Release/badge.svg)](https://github.com/Danushka-Madushan/animepahe-cli/actions)
 [![Release](https://img.shields.io/github/v/release/Danushka-Madushan/animepahe-cli?include_prereleases)](https://github.com/Danushka-Madushan/animepahe-cli/releases)
@@ -9,18 +9,18 @@ A command-line interface for downloading anime episodes from AnimePahe.ru with s
 ## ⚠️ Beta Notice
 
 This is a **beta version** and may encounter issues during operation. The current version has the following limitations:
-- Download via cli tool is not yet implementd, but direct links can be saved to links.txt
 - Zip feature is not yet available
 - Some edge cases may cause unexpected behavior
 
 ## 📋 Features
 
 - **Self-Updating**: Automatically update to the latest version with the `--upgrade` argument
+- **✅ Full Download Support**: Download anime episodes directly through the CLI tool with real-time progress tracking, speed monitoring, and ETA display
 - **Quality Selection**: Choose specific video quality (720p, 1080p, etc.) with automatic fallback options including lowest (-1) and maximum (0) quality settings
 - **Batch Downloads**: Download multiple episodes or entire series
 - **Episode Range Selection**: Choose specific episode ranges for targeted downloads
 - **Export Functionality**: Generate download links without downloading with custom filename support
-- **Archive Support**: Compress downloaded episodes into ZIP archives
+- **🚧 Archive Support**: Compress downloaded episodes into ZIP archives *(feature in development)*
 - **Windows Native**: Optimized Windows executable with potential Linux support in the future
 - **Reliable Link Extraction**: Guaranteed direct link extraction for all episodes
 - **Universal Compatibility**: Works with all anime series from AnimePahe.ru
@@ -65,7 +65,7 @@ animepahe-cli-beta.exe [OPTIONS]
 | `-q` | `--quality` | Target video quality (`-1` for lowest, `0` for max, or custom like `720`, `1080`) | `-1`, `0`, `720`, `1080`, `360` |
 | `-x` | `--export` | Export download links to file (cancels download) | |
 | `-f` | `--filename` | Custom filename for exported file (use with `-x`) | `"akame-ga-kill-links.txt"` |
-| `-z` | `--zip` | Compress all downloaded episodes into a single ZIP archive | |
+| `-z` | `--zip` | Compress all downloaded episodes into a single ZIP archive *(currently in development)* | |
 
 ### Examples
 
@@ -119,17 +119,22 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -x -f "akame-ga-kill-links.txt"
 ```
 
-#### Download and Create ZIP Archive
+#### Download Episodes (ZIP feature coming soon)
 ```bash
-animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-24 -z
-```
-
-#### Download with Quality and ZIP Archive
-```bash
+# Note: ZIP feature is currently in development
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-24 -q 1080 -z
 ```
 
 ## 🔧 Technical Details
+
+### Download Feature ✅ **IMPLEMENTED**
+- **Direct Downloads**: Episodes are downloaded directly through the CLI tool to the current working directory
+- **Real-time Progress**: Live download progress with detailed statistics including:
+  - Current download speed (MB/s)
+  - Estimated time of arrival (ETA)
+  - Percentage completion
+- **Resume Support**: Ability to resume interrupted downloads
+- **Automatic Naming**: Downloaded files are automatically named with proper episode numbering and series information
 
 ### Self-Updating Feature
 - Use `--upgrade` to automatically download and install the latest version
@@ -158,6 +163,15 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 - Custom filename can include path information for organized exports
 - When episodes are not specified with export, all episodes are exported by default
 
+### Archive Support 🚧 **IN DEVELOPMENT**
+- ZIP feature is currently under active development
+- Will compress all downloaded episodes into a ZIP archive after successful downloads
+- Planned features:
+  - Automatic ZIP creation after download completion
+  - Archive naming based on series title
+  - Option to retain or remove original files
+  - Progress indication for compression process
+
 ### Platform Support
 - **Windows**: Fully supported with native executable
 - **Linux**: Potential future support under consideration
@@ -178,11 +192,30 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 - Git (for dependency fetching)
 - Windows development environment
 
+## 📊 Current Implementation Status
+
+| Feature | Status | Notes |
+|---------|--------|--------|
+| Download with Progress | ✅ Complete | Real-time ETA, speed, and progress display |
+| Episode Range Selection | ✅ Complete | Supports `all`, ranges like `1-12` |
+| Quality Selection | ✅ Complete | Supports `-1`, `0`, and custom qualities |
+| Export Links | ✅ Complete | With custom filename support |
+| Self-Update | ✅ Complete | Automatic version checking and updating |
+| Link Extraction | ✅ Complete | Reliable extraction for all episodes |
+| ZIP Archive Creation | 🚧 In Development | Feature implementation in progress |
+
 ## 🐛 Known Issues
 
 - Network timeouts may occur with slow connections
 - Large batch downloads may consume significant system resources
 - Update feature requires internet connection and appropriate permissions
+- ZIP feature is not yet functional (development in progress)
+
+## 🚧 Upcoming Features
+
+- **ZIP Archive Support**: Complete implementation of the `-z` flag for automatic compression
+- **Enhanced Progress Display**: Additional statistics and visual improvements
+- **Configuration File Support**: Save user preferences for quality and download settings
 
 ## 🤝 Contributing
 
