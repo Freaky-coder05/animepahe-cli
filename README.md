@@ -127,13 +127,12 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 
 ## 🔧 Technical Details
 
-### Download Feature ✅ **IMPLEMENTED**
+### Download Feature
 - **Direct Downloads**: Episodes are downloaded directly through the CLI tool to the current working directory
 - **Real-time Progress**: Live download progress with detailed statistics including:
   - Current download speed (MB/s)
   - Estimated time of arrival (ETA)
   - Percentage completion
-- **Resume Support**: Ability to resume interrupted downloads
 - **Automatic Naming**: Downloaded files are automatically named with proper episode numbering and series information
 
 ### Self-Updating Feature
