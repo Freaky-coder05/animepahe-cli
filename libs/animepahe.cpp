@@ -1,5 +1,6 @@
 #include <animepahe.hpp>
 #include <kwikpahe.hpp>
+#include <downloader.hpp>
 #include <cpr/cpr.h>
 #include <re2/re2.h>
 #include <fmt/core.h>
@@ -434,7 +435,17 @@ namespace AnimepaheCLI
         }
         else
         {
-            fmt::print("\n\n * createZip: {}\n", createZip);
+            Downloader downloader(directLinks);
+            downloader.setDownloadDirectory("downloads");
+            downloader.startDownloads();
+
+            fmt::print("\n * createZip: {}\n\n", createZip);
+
+            /* create zip of downloaded items */
+            if (createZip)
+            {
+                /* Create Zip logic */
+            }
         }
     }
 }
