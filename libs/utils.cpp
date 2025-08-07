@@ -6,9 +6,44 @@
 #include <iostream>
 #include <algorithm>
 #include <string_view>
+#include <string>
+#include <regex>
+#include <unordered_set>
 
 namespace AnimepaheCLI
 {
+    std::string sanitizeForWindowsPath(std::string name)
+    {
+        // Replace invalid characters with '_'
+        static const std::regex invalid(R"([<>:"/\\|?*\x00-\x1F])");
+        name = std::regex_replace(name, invalid, "_");
+
+        // Remove trailing spaces or dots
+        while (!name.empty() && (name.back() == ' ' || name.back() == '.'))
+            name.pop_back();
+
+        // Reserved Windows names (case-insensitive)
+        static const std::unordered_set<std::string> reserved = {
+            "CON", "PRN", "AUX", "NUL",
+            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
+
+        std::string upperName = name;
+        std::transform(upperName.begin(), upperName.end(), upperName.begin(), ::toupper);
+        if (reserved.count(upperName))
+        {
+            name = "_" + name; // Prefix to avoid conflict
+        }
+
+        // Edge case: empty name after cleaning
+        if (name.empty())
+        {
+            name = "_unnamed";
+        }
+
+        return name;
+    }
+
     int getPage(int number)
     {
         return std::max(1, (number + 29) / 30);

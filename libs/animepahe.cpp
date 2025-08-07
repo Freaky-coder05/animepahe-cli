@@ -31,7 +31,7 @@ namespace AnimepaheCLI
         return HEADERS;
     }
 
-    void Animepahe::extract_link_metadata(const std::string &link, bool isSeries)
+    std::string Animepahe::extract_link_metadata(const std::string &link, bool isSeries)
     {
         fmt::print("\n\r * Requesting Info..");
         cpr::Response response = cpr::Get(
@@ -39,6 +39,9 @@ namespace AnimepaheCLI
             cpr::Header{getHeaders(link)}, cookies);
 
         fmt::print("\r * Requesting Info : ");
+
+        /* series_name */
+        std::string series_title;
 
         if (response.status_code != 200)
         {
@@ -64,6 +67,7 @@ namespace AnimepaheCLI
             if (RE2::FindAndConsume(&TITLE_CONSUME, R"re(style=[^=]+title="([^"]+)")re", &title))
             {
                 title = unescape_html_entities(title);
+                series_title = title;
             }
 
             if (RE2::FindAndConsume(&TYPE_CONSUME, R"re(Type:[^>]*title="[^"]*"[^>]*>([^<]+)</a>)re", &type))
@@ -90,11 +94,14 @@ namespace AnimepaheCLI
             {
                 episode = unescape_html_entities(episode);
                 title = unescape_html_entities(title);
+                series_title = title;
             }
 
             fmt::print("\n * Anime: {}\n", title);
             fmt::print(" * Episode: {}\n", episode);
         }
+        /* return series_name */
+        return series_title;
     }
 
     std::map<std::string, std::string> Animepahe::fetch_episode(const std::string &link, const int &targetRes)
@@ -391,7 +398,7 @@ namespace AnimepaheCLI
             fmt::print("\n");
         }
         /* Request Metadata */
-        extract_link_metadata(link, isSeries);
+        std::string series_name = extract_link_metadata(link, isSeries);
 
         /* Extract Links */
         const std::vector<std::map<std::string, std::string>> epData = extract_link_content(link, episodes, targetRes, isSeries, isAllEpisodes);
@@ -436,10 +443,10 @@ namespace AnimepaheCLI
         else
         {
             Downloader downloader(directLinks);
-            downloader.setDownloadDirectory("downloads");
+            downloader.setDownloadDirectory(series_name);
             downloader.startDownloads();
 
-            fmt::print("\n * createZip: {}\n\n", createZip);
+            fmt::print("\n\x1b[2K\r\n * createZip: {}\n\n", createZip);
 
             /* create zip of downloaded items */
             if (createZip)

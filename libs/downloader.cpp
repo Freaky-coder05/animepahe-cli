@@ -11,8 +11,6 @@
 #include <regex>
 
 Downloader::Downloader(const std::vector<std::string> &urls) : urls_(urls) {}
-const char *CLEAR_LINE = "\033[2K"; // Clear entire line
-const char *CURSOR_START = "\r";    // Return to start of line
 
 void Downloader::setDownloadDirectory(const std::string &dir)
 {
@@ -33,21 +31,25 @@ void Downloader::startDownloads()
 
         fmt::print("\n * Downloading : ");
         fmt::print(fmt::fg(fmt::color::cyan), fmt::format("{}\n", filename));
-        if (!downloadFile(url, filepath))
+        bool dlStatus = downloadFile(url, filepath);
+        if (!dlStatus)
         {
-            fmt::print("\n * Download failed : {} , skipping to next.\n", url);
+            fmt::print("\n * DL (");
+            fmt::print(fmt::fg(fmt::color::indian_red), "FAIL");
+            fmt::print(")   : {}", url);
             std::filesystem::remove(filepath);
             continue;
         }
         else
         {
-            fmt::print("{}{}", CLEAR_LINE, CURSOR_START);
-            fmt::print("{}{}", CLEAR_LINE, CURSOR_START);
-            fmt::print("{}{}", CLEAR_LINE, CURSOR_START);
-            fmt::print("{}{}", CLEAR_LINE, CURSOR_START);
+            /* Move cursor up */
+            std::cout << "\x1b[1A";
+            /* Clear the entire line */
+            std::cout << "\x1b[2K\r";
+
             fmt::print(" * DL (");
-            fmt::print(fmt::fg(fmt::color::lime_green), "OK");
-            fmt::print(")     : {}\n", filename);
+            fmt::print(fmt::fg(fmt::color::lime_green), "DONE");
+            fmt::print(")   : {}", filename);
         }
     }
 }
@@ -74,7 +76,7 @@ std::string Downloader::extractFilename(const std::string &url) const
 }
 
 std::string formatTime(double totalSeconds) {
-    int seconds = static_cast<int>(std::round(totalSeconds)); // Round to nearest second
+    int seconds = static_cast<int>(std::round(totalSeconds)); /* Round to nearest second */
     int hours = seconds / 3600;
     int minutes = (seconds % 3600) / 60;
     int secs = seconds % 60;
@@ -97,16 +99,25 @@ std::string formatSpeedMB(double speedKBps) {
     return oss.str();
 }
 
+auto formatSizeMB = [](size_t bytes) -> std::string {
+    double mb = static_cast<double>(bytes) / (1024.0 * 1024.0);
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2) << mb << "MB";
+    return oss.str();
+};
+
 bool Downloader::downloadFile(const std::string &url, const std::string &filepath)
 {
     std::ofstream outfile(filepath, std::ios::binary);
     if (!outfile.is_open())
     {
-        fmt::print("\n * Failed to open file : {}\n", filepath);
+        fmt::print("\n * Failed to open file: {}\n", filepath);
         return false;
     }
 
     auto start_time = std::chrono::steady_clock::now();
+    std::string last_progress_line;
+    
     cpr::Response r = cpr::Get(
         cpr::Url{url},
         cpr::WriteCallback{
@@ -115,26 +126,47 @@ bool Downloader::downloadFile(const std::string &url, const std::string &filepat
                 outfile.write(data.data(), data.size());
                 return true;
             }},
-        cpr::ProgressCallback{[&start_time](size_t downloadTotal, size_t downloadNow, size_t, size_t, intptr_t)
+        cpr::ProgressCallback{[&start_time, &last_progress_line](size_t downloadTotal, size_t downloadNow, size_t, size_t, intptr_t)
         {
             if (downloadTotal > 0)
             {
                 double progress = static_cast<double>(downloadNow) / downloadTotal * 100.0;
                 auto now = std::chrono::steady_clock::now();
                 auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start_time).count();
+                
                 if (elapsed > 0)
                 {
                     double speed = static_cast<double>(downloadNow) / elapsed;
                     double remaining = (downloadTotal - downloadNow) / speed;
-                    double kbSpeed = speed / 1024;
-                    std::cout << "\r * Progress: " << std::fixed
-                    << std::setprecision(2) << progress
-                    << "% ETA: " << formatTime(remaining) << "S | " << formatSpeedMB(speed) << std::flush;
+                    
+                    /* Build the complete progress string */
+                    std::ostringstream progress_stream;
+                    progress_stream << std::fixed << std::setprecision(2)
+                    << " * Progress: " << progress
+                    << "% ETA: " << formatTime(remaining)
+                    << " | " << formatSpeedMB(speed)
+                    << " | [" << formatSizeMB(downloadNow) << "/" << formatSizeMB(downloadTotal) << "]";
+                    
+                    std::string new_line = progress_stream.str();
+                    
+                    /* Clear the current progress line and rewrite it */
+                    if (!last_progress_line.empty()) {
+                        /*  Clear the previous progress line */
+                        std::cout << "\r" << std::string(last_progress_line.length(), ' ') << "\r";
+                    }
+                    
+                    std::cout << new_line << std::flush;
+                    last_progress_line = new_line;
                 }
             }
             return true;
         }
     });
+
+    /* Clear the final progress line but leave cursor positioned for cleanup */
+    if (!last_progress_line.empty()) {
+        std::cout << "\r" << std::string(last_progress_line.length(), ' ') << "\r";
+    }
 
     outfile.close();
     return r.status_code == 200;
