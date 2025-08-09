@@ -4,6 +4,7 @@ project(AnimepaheCLI VERSION 0.1.9 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CPR_USE_SYSTEM_CURL ON)
+
 # Configure Abseil options before making it available
 set(ABSL_PROPAGATE_CXX_STD ON)
 set(ABSL_ENABLE_INSTALL ON)
@@ -48,16 +49,23 @@ FetchContent_Declare(
 FetchContent_Declare(
   pugixml
   GIT_REPOSITORY https://github.com/zeux/pugixml.git
-  GIT_TAG v1.15 # Or a specific release tag like v1.13
+  GIT_TAG        v1.15 # Or a specific release tag like v1.13
 )
 
 FetchContent_Declare(
   json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
-  GIT_TAG v3.12.0
+  GIT_TAG        v3.12.0
 )
 
-FetchContent_MakeAvailable(absl re2 cxxopts fmt cpr pugixml json)
+# Fetch kuba--/zip (minimal dependencies, simple API)
+FetchContent_Declare(
+  zip
+  GIT_REPOSITORY https://github.com/kuba--/zip.git
+  GIT_TAG        v0.3.5  # Use stable version
+)
+
+FetchContent_MakeAvailable(absl re2 cxxopts fmt cpr pugixml json zip)
 
 add_executable(
   animepahe-cli-beta
@@ -68,6 +76,7 @@ add_executable(
   libs/kwikpahe.cpp
   libs/githubupdater.cpp
   libs/downloader.cpp
+  libs/ziputils.cpp
   resource.rc
 )
 
@@ -79,6 +88,7 @@ target_include_directories(animepahe-cli-beta
 target_link_libraries(animepahe-cli-beta
   PRIVATE
   pugixml
+  zip
   cpr::cpr
   fmt::fmt
   re2::re2
