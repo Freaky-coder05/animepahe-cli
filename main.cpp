@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     ("x,export", "Export download links to a text file", cxxopts::value<bool>()->default_value("false"))
     ("f,filename", "Custom filname for exported file", cxxopts::value<std::string>()->default_value("links.txt"))
     ("z,zip", "Create a zip from downloaded items", cxxopts::value<bool>()->default_value("false"))
+    ("rm-source", "Delete source files after zipping", cxxopts::value<bool>()->default_value("false"))
     ("upgrade", "Update to the latest version")
     ("h,help", "Print usage");
 
@@ -62,6 +63,7 @@ int main(int argc, char *argv[])
         int targetRes = result["quality"].as<int>();
         bool exportLinks = result["export"].as<bool>();
         bool createZip = result["zip"].as<bool>();
+        bool removeSource = result["rm-source"].as<bool>();
         std::string export_filename = result["filename"].as<std::string>();
 
         if (!isFullSeriesURL(link) && !isEpisodeURL(link))
@@ -79,6 +81,15 @@ int main(int argc, char *argv[])
         if (targetRes < -1)
         {
             throw std::runtime_error(fmt::format("{} is not valid for -q,--quality [0-max,-1-min,720|360]", targetRes));
+        }
+        if (exportLinks && createZip)
+        {
+            /* exporting method takes prority */
+            createZip = false;
+            if (removeSource)
+            {
+                removeSource = false;
+            }
         }
 
         fmt::print("\n * Animepahe-CLI ({}) https://github.com/Danushka-Madushan/animepahe-cli \n", VERSION);
@@ -103,7 +114,8 @@ int main(int argc, char *argv[])
             episodes == "all" ? std::vector<int>() : parseEpisodeRange(episodes),
             export_filename,
             exportLinks,
-            createZip
+            createZip,
+            removeSource
         );
     }
     catch (const cxxopts::exceptions::option_has_no_value)
@@ -113,7 +125,7 @@ int main(int argc, char *argv[])
     }
     catch (const cxxopts::exceptions::missing_argument)
     {
-        fmt::print("\n Usage: -l,--link \"https://animepahe.ru/anime/....\" -e,--episodes [all,1-12] -q,--quality [0-max,-1-min,720|360] -x,--export, -f,--filename [filename] -z,--zip, --update\n\n");
+        fmt::print("\n Usage: -l,--link \"https://animepahe.ru/anime/....\" -e,--episodes [all,1-12] -q,--quality [0-max,-1-min,720|360] -x,--export, -f,--filename [filename] -z,--zip, --upgrade\n\n");
         return 1;
     }
     catch (const std::runtime_error &e)
