@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
     }
     catch (const cxxopts::exceptions::missing_argument)
     {
-        fmt::print("\n Usage: -l,--link \"https://animepahe.ru/anime/....\" -e,--episodes [all,1-12] -q,--quality [0-max,-1-min,720|360] -x,--export, -f,--filename [filename] -z,--zip, --upgrade\n\n");
+        fmt::print("\n Usage: -l,--link \"https://animepahe.ru/anime/....\" -e,--episodes [all,1-12] -q,--quality [0-max,-1-min,720|360] -x,--export, -f,--filename [filename] -z,--zip, --rm-source, --upgrade\n\n");
         return 1;
     }
     catch (const std::runtime_error &e)
