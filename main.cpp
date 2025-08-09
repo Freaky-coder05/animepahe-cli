@@ -22,7 +22,9 @@ int main(int argc, char *argv[])
      * -q, --quality
      * set target quality, if available it will select otherwise fall back to maximum
      * -z, --zip
-     * creates a zip from downloaded items 
+     * creates a zip from downloaded items
+     * --rm-source
+     * remove source files after zipping
      * --update
      * self update to the latest version */
 
