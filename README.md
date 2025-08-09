@@ -4,12 +4,11 @@
 [![Release](https://img.shields.io/github/v/release/Danushka-Madushan/animepahe-cli?include_prereleases)](https://github.com/Danushka-Madushan/animepahe-cli/releases)
 [![License](https://img.shields.io/github/license/Danushka-Madushan/animepahe-cli)](LICENSE)
 
-A command-line interface for downloading anime episodes from AnimePahe.ru with support for batch downloads, episode ranges, quality selection, export functionality, and automatic updates.
+A command-line interface for downloading anime episodes from AnimePahe.ru with support for batch downloads, episode ranges, quality selection, export functionality, ZIP archive creation, and automatic updates.
 
 ## ⚠️ Beta Notice
 
 This is a **beta version** and may encounter issues during operation. The current version has the following limitations:
-- Zip feature is not yet available
 - Some edge cases may cause unexpected behavior
 
 ## 📋 Features
@@ -20,7 +19,7 @@ This is a **beta version** and may encounter issues during operation. The curren
 - **Batch Downloads**: Download multiple episodes or entire series
 - **Episode Range Selection**: Choose specific episode ranges for targeted downloads
 - **Export Functionality**: Generate download links without downloading with custom filename support
-- **🚧 Archive Support**: Compress downloaded episodes into ZIP archives *(feature in development)*
+- **Archive Support**: Compress downloaded episodes into ZIP archives with source file management options
 - **Windows Native**: Optimized Windows executable with potential Linux support in the future
 - **Reliable Link Extraction**: Guaranteed direct link extraction for all episodes
 - **Universal Compatibility**: Works with all anime series from AnimePahe.ru
@@ -65,7 +64,8 @@ animepahe-cli-beta.exe [OPTIONS]
 | `-q` | `--quality` | Target video quality (`-1` for lowest, `0` for max, or custom like `720`, `1080`) | `-1`, `0`, `720`, `1080`, `360` |
 | `-x` | `--export` | Export download links to file (cancels download) | |
 | `-f` | `--filename` | Custom filename for exported file (use with `-x`) | `"akame-ga-kill-links.txt"` |
-| `-z` | `--zip` | Compress all downloaded episodes into a single ZIP archive *(currently in development)* | |
+| `-z` | `--zip` | Compress all downloaded episodes into a single ZIP archive | |
+| `--rm-source` | | Remove source files after ZIP creation (use with `-z`) |
 
 ### Examples
 
@@ -119,10 +119,14 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -x -f "akame-ga-kill-links.txt"
 ```
 
-#### Download Episodes (ZIP feature coming soon)
+#### Download and Create ZIP Archive
 ```bash
-# Note: ZIP feature is currently in development
 animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-24 -q 1080 -z
+```
+
+#### Download, ZIP, and Remove Source Files
+```bash
+animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-580701484066" -e 1-24 -q 1080 -z --rm-source
 ```
 
 ## 🔧 Technical Details
@@ -162,14 +166,16 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 - Custom filename can include path information for organized exports
 - When episodes are not specified with export, all episodes are exported by default
 
-### Archive Support 🚧 **IN DEVELOPMENT**
-- ZIP feature is currently under active development
-- Will compress all downloaded episodes into a ZIP archive after successful downloads
-- Planned features:
-  - Automatic ZIP creation after download completion
-  - Archive naming based on series title
-  - Option to retain or remove original files
-  - Progress indication for compression process
+### Archive Support
+- **Complete ZIP functionality**: Compress all downloaded episodes into a ZIP archive after successful downloads
+- **Source file management**: Use `--rm-source` flag with `-z` to automatically delete original video files after successful ZIP creation
+- **Automatic naming**: ZIP archives are automatically named based on the anime series title
+- **Progress indication**: Real-time progress display during compression process
+- **Archive features**:
+  - Maintains original file structure and naming within the archive
+  - Preserves file timestamps and metadata
+  - Creates compressed archives to save disk space
+  - Handles large file sizes efficiently
 
 ### Platform Support
 - **Windows**: Fully supported with native executable
@@ -184,6 +190,7 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 - **cxxopts**: Command line argument parsing
 - **PugiXML**: XML processing library
 - **nlohmann/json**: JSON parsing library
+- **kuba--/zip**: ZIP archive creation library
 
 ### Build Requirements
 - CMake 3.5 or higher
@@ -191,28 +198,15 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 - Git (for dependency fetching)
 - Windows development environment
 
-## 📊 Current Implementation Status
-
-| Feature | Status | Notes |
-|---------|--------|--------|
-| Download with Progress | ✅ Complete | Real-time ETA, speed, and progress display |
-| Episode Range Selection | ✅ Complete | Supports `all`, ranges like `1-12` |
-| Quality Selection | ✅ Complete | Supports `-1`, `0`, and custom qualities |
-| Export Links | ✅ Complete | With custom filename support |
-| Self-Update | ✅ Complete | Automatic version checking and updating |
-| Link Extraction | ✅ Complete | Reliable extraction for all episodes |
-| ZIP Archive Creation | 🚧 In Development | Feature implementation in progress |
-
 ## 🐛 Known Issues
 
 - Network timeouts may occur with slow connections
 - Large batch downloads may consume significant system resources
 - Update feature requires internet connection and appropriate permissions
-- ZIP feature is not yet functional (development in progress)
+- Some edge cases may cause unexpected behavior (beta version)
 
 ## 🚧 Upcoming Features
 
-- **ZIP Archive Support**: Complete implementation of the `-z` flag for automatic compression
 - **Enhanced Progress Display**: Additional statistics and visual improvements
 - **Configuration File Support**: Save user preferences for quality and download settings
 

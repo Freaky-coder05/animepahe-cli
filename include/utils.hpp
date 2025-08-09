@@ -10,6 +10,7 @@
 
 namespace AnimepaheCLI
 {
+    std::string replaceSpacesWithUnderscore(std::string text);
     std::string sanitizeForWindowsPath(std::string name);
     int getPage(int number);
     bool isValidTxtFilename(const std::string& filename);

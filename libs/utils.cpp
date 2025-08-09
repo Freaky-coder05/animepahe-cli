@@ -12,6 +12,12 @@
 
 namespace AnimepaheCLI
 {
+
+    std::string replaceSpacesWithUnderscore(std::string text) {
+        std::replace(text.begin(), text.end(), ' ', '_');
+        return text;
+    }
+
     std::string sanitizeForWindowsPath(std::string name)
     {
         // Replace invalid characters with '_'

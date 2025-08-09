@@ -8,6 +8,8 @@
 #include <utils.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include <ziputils.hpp>
+#include <iostream>
 
 using json = nlohmann::json;
 
@@ -367,7 +369,8 @@ namespace AnimepaheCLI
         const std::vector<int> &episodes,
         const std::string &export_filename,
         bool exportLinks,
-        bool createZip
+        bool createZip,
+        bool removeSource
     )
     {
         /* print config */
@@ -388,7 +391,15 @@ namespace AnimepaheCLI
         exportLinks ? fmt::print(fmt::fg(fmt::color::cyan), "true") : fmt::print("false");
         (exportLinks && export_filename != "links.txt") ? fmt::print(fmt::fg(fmt::color::cyan), fmt::format(" [{}]\n", export_filename)) : fmt::print("\n");
         fmt::print(" * createZip: ", createZip);
-        createZip ? fmt::print(fmt::fg(fmt::color::cyan), "true\n") : fmt::print("false\n");
+        createZip ? fmt::print(fmt::fg(fmt::color::cyan), "true") : fmt::print("false\n");
+        if (createZip && removeSource)
+        {
+            fmt::print(fmt::fg(fmt::color::cyan), " [Remove Source]\n");
+        }
+        else if (createZip && !removeSource)
+        {
+            std::cout << std::endl;
+        }
 
         /* Requested Episodes Range */
         if (isSeries)
@@ -445,13 +456,64 @@ namespace AnimepaheCLI
             Downloader downloader(directLinks);
             downloader.setDownloadDirectory(series_name);
             downloader.startDownloads();
-
-            fmt::print("\n\x1b[2K\r\n * createZip: {}\n\n", createZip);
+            fmt::print("\n\x1b[2K\r");
 
             /* create zip of downloaded items */
             if (createZip)
             {
                 /* Create Zip logic */
+                auto enhanced_progress = [](size_t current, size_t total, const std::string &file, size_t bytes_done, size_t bytes_total)
+                {
+                    double file_progress = total > 0 ? (double(current) / total) * 100.0 : 0.0;
+                    double byte_progress = bytes_total > 0 ? (double(bytes_done) / bytes_total) * 100.0 : 0.0;
+
+                    /* Create progress bar */
+                    const int bar_width = 30;
+                    int filled = static_cast<int>(file_progress * bar_width / 100.0);
+
+                    std::ostringstream progress_stream;
+
+                    progress_stream << "\r * [";
+                    for (int i = 0; i < bar_width; ++i)
+                    {
+                        if (i < filled)
+                            progress_stream << "=";
+                        else if (i == filled)
+                            progress_stream << ">";
+                        else
+                            progress_stream << " ";
+                    }
+                    progress_stream << "] " << std::fixed << std::setprecision(1) << "(" << current << "/" << total << ") " << file_progress << "% ";
+                    std::string new_line = progress_stream.str();
+
+                    std::cout << new_line << std::flush;
+                };
+
+                std::cout << "\n * Zipping..\n";
+
+                /* Use the enhanced progress callback */
+                std::string zipName = replaceSpacesWithUnderscore(series_name);
+                bool success = ZipUtils::zip_directory(
+                    fmt::format("./{}", series_name),
+                    fmt::format("{}.zip", zipName),
+                    removeSource,
+                    enhanced_progress
+                );
+
+                for (int i = 0; i < 2; ++i)
+                {
+                    fmt::print("{}{}{}", CLEAR_LINE, MOVE_UP, CURSOR_START);
+                }
+
+                fmt::print("\n * Zipping : ");
+                (success ? fmt::print(fmt::fg(fmt::color::lime_green), "OK ") : fmt::print(fmt::fg(fmt::color::indian_red), "FAIL!\n"));
+                if (success)
+                {
+                    std::cout << "(";
+                    fmt::print(fmt::fg(fmt::color::cyan), fmt::format("{}.zip", zipName));
+                    std::cout << ")" << std::endl;
+                }
+                std::cout << std::endl;
             }
         }
     }
