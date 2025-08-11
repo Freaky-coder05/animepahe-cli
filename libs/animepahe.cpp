@@ -453,8 +453,10 @@ namespace AnimepaheCLI
         }
         else
         {
+            /* sanitize anime name for windows support */
+            std::string dirName = sanitizeForWindowsPath(series_name);
             Downloader downloader(directLinks);
-            downloader.setDownloadDirectory(series_name);
+            downloader.setDownloadDirectory(dirName);
             downloader.startDownloads();
             fmt::print("\n\x1b[2K\r");
 
@@ -492,9 +494,9 @@ namespace AnimepaheCLI
                 std::cout << "\n * Zipping..\n";
 
                 /* Use the enhanced progress callback */
-                std::string zipName = replaceSpacesWithUnderscore(series_name);
+                std::string zipName = replaceSpacesWithUnderscore(dirName);
                 bool success = ZipUtils::zip_directory(
-                    fmt::format("./{}", series_name),
+                    fmt::format("./{}", dirName),
                     fmt::format("{}.zip", zipName),
                     removeSource,
                     enhanced_progress
@@ -513,8 +515,8 @@ namespace AnimepaheCLI
                     fmt::print(fmt::fg(fmt::color::cyan), fmt::format("{}.zip", zipName));
                     std::cout << ")" << std::endl;
                 }
-                std::cout << std::endl;
             }
+            std::cout << std::endl;
         }
     }
 }
