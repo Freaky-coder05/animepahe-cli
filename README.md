@@ -209,6 +209,8 @@ animepahe-cli-beta.exe -l "https://animepahe.ru/anime/dcb2b21f-a70d-84f7-fbab-58
 
 - **Enhanced Progress Display**: Additional statistics and visual improvements
 - **Configuration File Support**: Save user preferences for quality and download settings
+- **Stream without Downloading**: Stream provided series to a player like `mpv` without downloading.
+- **Batch Series Download**: Download multiple series to a single directory
 
 ## 🤝 Contributing
 
