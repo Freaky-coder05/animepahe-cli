@@ -4,7 +4,11 @@
 #include <string>
 #include <utils.hpp>
 #include <animepahe.hpp>
+#ifdef _WIN32
 #include <githubupdater.hpp>
+#else
+#include "libs/githubupdater_stub.h"
+#endif
 
 using namespace AnimepaheCLI;
 

@@ -67,18 +67,22 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(absl re2 cxxopts fmt cpr pugixml json zip)
 
-add_executable(
-  animepahe-cli-beta
-
+set(SRC_FILES
   main.cpp
   libs/utils.cpp
   libs/animepahe.cpp
   libs/kwikpahe.cpp
-  libs/githubupdater.cpp
   libs/downloader.cpp
   libs/ziputils.cpp
   resource.rc
 )
+
+# Include Windows-only updater
+if(WIN32)
+  list(APPEND SRC_FILES libs/githubupdater.cpp)
+endif()
+
+add_executable(animepahe-cli-beta ${SRC_FILES})
 
 target_include_directories(animepahe-cli-beta
   PRIVATE
