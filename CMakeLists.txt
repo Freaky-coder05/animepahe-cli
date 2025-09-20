@@ -1,12 +1,9 @@
 cmake_minimum_required(VERSION 3.5...3.30)
-project(AnimepaheCLI VERSION 0.2.1 LANGUAGES CXX)
+project(AnimepaheCLI VERSION 0.2.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CPR_USE_SYSTEM_CURL OFF CACHE BOOL "Use cpr's bundled libcurl" FORCE)
-if (WIN32)
-  set(CURL_USE_SCHANNEL ON CACHE BOOL "Use native Windows SSL backend" FORCE)
-endif()
+set(CPR_USE_SYSTEM_CURL ON)
 
 # Configure Abseil options before making it available
 set(ABSL_PROPAGATE_CXX_STD ON)

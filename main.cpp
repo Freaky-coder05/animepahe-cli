@@ -7,7 +7,7 @@
 #ifdef _WIN32
 #include <githubupdater.hpp>
 #else
-#include "libs/githubupdater_stub.h"
+#include "include/githubupdater_stub.h"
 #endif
 
 using namespace AnimepaheCLI;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     ("h,help", "Print usage");
 
     /* version tag */
-    const std::string VERSION = "v0.2.1-beta";
+    const std::string VERSION = "v0.2.2-beta";
 
     try
     {
