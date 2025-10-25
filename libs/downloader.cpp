@@ -27,7 +27,7 @@ void Downloader::startDownloads()
     for (const auto &url : urls_)
     {
         std::string filename = extractFilename(url);
-        std::string filepath = download_dir_ + "/" + filename;
+        std::string filepath = download_dir_ + "/" + videos;
 
         fmt::print("\n * Downloading : ");
         fmt::print(fmt::fg(fmt::color::cyan), fmt::format("{}\n", filename));
