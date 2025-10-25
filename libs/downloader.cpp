@@ -23,11 +23,16 @@ void Downloader::setDownloadDirectory(const std::string &dir)
 
 void Downloader::startDownloads()
 {
+    // Ensure "videos" folder exists inside download_dir_
+    std::string videos_dir = download_dir_ + "/videos";
+    if (!std::filesystem::exists(videos_dir))
+        std::filesystem::create_directory(videos_dir);
+
     fmt::print("\n");
     for (const auto &url : urls_)
     {
         std::string filename = extractFilename(url);
-        std::string filepath = download_dir_ + "/" + videos;
+        std::string filepath = videos_dir + "/" + filename;  // <-- all files go here
 
         fmt::print("\n * Downloading : ");
         fmt::print(fmt::fg(fmt::color::cyan), fmt::format("{}\n", filename));
@@ -42,9 +47,7 @@ void Downloader::startDownloads()
         }
         else
         {
-            /* Move cursor up */
             std::cout << "\x1b[1A";
-            /* Clear the entire line */
             std::cout << "\x1b[2K\r";
 
             fmt::print(" * DL (");
