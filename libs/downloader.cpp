@@ -21,6 +21,7 @@ void Downloader::setDownloadDirectory(const std::string &dir)
     }
 }
 
+
 void Downloader::startDownloads()
 {
     // Ensure "videos" folder exists inside download_dir_
@@ -32,10 +33,15 @@ void Downloader::startDownloads()
     for (const auto &url : urls_)
     {
         std::string filename = extractFilename(url);
-        std::string filepath = videos_dir + "/" + filename;  // <-- all files go here
+
+        // Sanitize filename: replace any / or \ to prevent folder creation
+        filename = std::regex_replace(filename, std::regex(R"([\\/])"), "_");
+
+        std::string filepath = videos_dir + "/" + filename;
 
         fmt::print("\n * Downloading : ");
         fmt::print(fmt::fg(fmt::color::cyan), fmt::format("{}\n", filename));
+
         bool dlStatus = downloadFile(url, filepath);
         if (!dlStatus)
         {
@@ -47,6 +53,7 @@ void Downloader::startDownloads()
         }
         else
         {
+            // Move cursor up and clear line for clean output
             std::cout << "\x1b[1A";
             std::cout << "\x1b[2K\r";
 
